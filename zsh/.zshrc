@@ -156,6 +156,10 @@ alias gau='git add -u'
 alias gall='git add .'
 alias gcam='git commit -am'
 
+# Git aliases for ignoring and unignoring files
+alias git-ignore='git update-index --assume-unchanged'
+alias git-unignore='git update-index --no-assume-unchanged'
+
 # list all untracked git branches
 alias git-list-untracked='git fetch --prune && git branch -r | awk "{print \$1}" | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}"'
 
