@@ -156,6 +156,12 @@ alias gau='git add -u'
 alias gall='git add .'
 alias gcam='git commit -am'
 
+# list all untracked git branches
+alias git-list-untracked='git fetch --prune && git branch -r | awk "{print \$1}" | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}"'
+
+# delete all untracked git branches
+alias git-delete-untracked='git fetch --prune && git branch -r | awk "{print \$1}" | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}" | xargs git branch -d'
+
 # program aliases
 alias python='python3'
 alias pip='pip3'
