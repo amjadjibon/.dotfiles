@@ -24,7 +24,7 @@
   when: ansible_os_family == 'Archlinux'
 
 # Ubuntu apt ships an outdated Go — download the official binary instead
-- name: Set Go download arch (Linux)
+- name: Set Go download arch (Debian/Ubuntu)
   set_fact:
     go_linux_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
   when: ansible_os_family == 'Debian'
@@ -51,7 +51,7 @@
   become: true
   when: ansible_os_family == 'Debian' and not go_debian_stat.stat.exists
 
-# ── Workspace & tools ─────────────────────────────────────────────────────────
+# ── Workspace ─────────────────────────────────────────────────────────────────
 - name: Ensure Go workspace directories exist
   file:
     path: "{{ item }}"
@@ -62,16 +62,35 @@
     - "{{ home_dir }}/go/bin"
     - "{{ home_dir }}/go/pkg"
 
-- name: Install Go developer tools
-  shell: |
-    export PATH="{{ go_bin_dir }}:$PATH"
-    export GOPATH="{{ home_dir }}/go"
-    go install golang.org/x/tools/gopls@latest
-    go install github.com/go-delve/delve/cmd/dlv@latest
-    go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-    go install mvdan.cc/gofumpt@latest
+# ── Developer tools (each guarded independently) ──────────────────────────────
+- name: Install gopls
+  shell: go install golang.org/x/tools/gopls@latest
   args:
     creates: "{{ home_dir }}/go/bin/gopls"
+  environment:
+    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    GOPATH: "{{ home_dir }}/go"
+
+- name: Install delve (dlv)
+  shell: go install github.com/go-delve/delve/cmd/dlv@latest
+  args:
+    creates: "{{ home_dir }}/go/bin/dlv"
+  environment:
+    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    GOPATH: "{{ home_dir }}/go"
+
+- name: Install golangci-lint
+  shell: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+  args:
+    creates: "{{ home_dir }}/go/bin/golangci-lint"
+  environment:
+    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    GOPATH: "{{ home_dir }}/go"
+
+- name: Install gofumpt
+  shell: go install mvdan.cc/gofumpt@latest
+  args:
+    creates: "{{ home_dir }}/go/bin/gofumpt"
   environment:
     PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
     GOPATH: "{{ home_dir }}/go"

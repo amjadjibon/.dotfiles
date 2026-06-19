@@ -12,3 +12,10 @@
     dest: "{{ home_dir }}/.tmux.conf"
     state: link
     force: true
+
+- name: Symlink .gitconfig
+  file:
+    src: "{{ dotfiles_dir }}/git/.gitconfig"
+    dest: "{{ home_dir }}/.gitconfig"
+    state: link
+    force: true

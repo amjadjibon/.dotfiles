@@ -19,6 +19,4 @@ COPY . .
 
 RUN ansible-galaxy collection install -r ansible/requirements.yml
 
-CMD ["ansible-playbook", "-i", "ansible/inventory.ini", "ansible/setup.yml", \
-     "--extra-vars", "in_docker=true", \
-     "-e", "ansible_python_interpreter=/usr/bin/python3"]
+CMD ["bash", "docker/test.sh"]

@@ -33,3 +33,11 @@
     repo: https://github.com/tmux-plugins/tpm.git
     dest: "{{ home_dir }}/.tmux/plugins/tpm"
     update: false
+
+# Bootstrap runs after dotfiles task has symlinked .tmux.conf
+- name: Bootstrap TPM plugins headlessly
+  shell: "{{ home_dir }}/.tmux/plugins/tpm/bin/install_plugins"
+  args:
+    creates: "{{ home_dir }}/.tmux/plugins/tmux-sensible"
+  environment:
+    TMUX_PLUGIN_MANAGER_PATH: "{{ home_dir }}/.tmux/plugins/"

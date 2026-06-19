@@ -27,6 +27,11 @@
       import_tasks: tasks/packages.yml
       tags: packages
 
+    # Symlink configs first so tools (TPM, NvChad) can read them during setup
+    - name: Dotfiles symlinks
+      import_tasks: tasks/dotfiles.yml
+      tags: dotfiles
+
     - name: Zsh + Oh My Zsh
       import_tasks: tasks/zsh.yml
       tags: zsh
@@ -58,7 +63,3 @@
     - name: Node (NVM)
       import_tasks: tasks/node.yml
       tags: node
-
-    - name: Dotfiles symlinks
-      import_tasks: tasks/dotfiles.yml
-      tags: dotfiles

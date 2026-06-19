@@ -1,0 +1,31 @@
+[core]
+	editor = nvim
+	autocrlf = input
+	excludesfile = ~/.gitignore_global
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[init]
+	defaultBranch = main
+
+[merge]
+	conflictstyle = diff3
+
+[diff]
+	colorMoved = default
+
+[alias]
+	st  = status
+	co  = checkout
+	br  = branch
+	lg  = log --oneline --graph --decorate --all
+	undo = reset --soft HEAD~1
+	wip  = commit -am "wip"
+
+# Personal name/email goes in ~/.gitconfig.local (not tracked)
+[include]
+	path = ~/.gitconfig.local
