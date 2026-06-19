@@ -34,6 +34,7 @@
     name: "{{ ansible_env.USER }}"
     shell: /bin/zsh
   become: true
+  when: not (in_docker | default(false))
 
 # ── Oh My Zsh ─────────────────────────────────────────────────────────────────
 - name: Check if Oh My Zsh is installed

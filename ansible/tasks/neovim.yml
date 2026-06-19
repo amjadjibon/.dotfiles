@@ -75,7 +75,8 @@
     creates: "{{ home_dir }}/.local/share/nvim/lazy/NvChad"
   environment:
     PATH: "{{ go_bin_dir }}:{{ home_dir }}/.cargo/bin:{{ ansible_env.PATH }}"
-  when: not nvchad_stat.stat.exists
+  # Skip in Docker — no TTY and minimal container env; binary install is still tested above
+  when: not nvchad_stat.stat.exists and not (in_docker | default(false))
   # First launch downloads all plugins — allow up to 3 minutes
   async: 180
   poll: 5
