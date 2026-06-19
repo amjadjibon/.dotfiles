@@ -31,7 +31,6 @@
   environment:
     PATH: "{{ home_dir }}/.local/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
   loop:
-    - black
     - ruff
-    - mypy
+    - ty
     - ipython
