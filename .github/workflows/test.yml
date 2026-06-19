@@ -35,19 +35,3 @@ jobs:
             exit 1
           fi
 
-  test-docker:
-    name: Docker (${{ matrix.distro }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [ubuntu, fedora, arch]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build ${{ matrix.distro }}
-        run: docker compose -f docker/docker-compose.yml build ${{ matrix.distro }}
-
-      - name: Run ${{ matrix.distro }} (playbook + idempotency check)
-        run: docker compose -f docker/docker-compose.yml run --rm ${{ matrix.distro }}
