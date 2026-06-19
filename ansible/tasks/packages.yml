@@ -22,6 +22,7 @@
       - fd
       - fzf
       - lazygit
+      - git-delta
       - tree
       - jq
       - htop
@@ -54,6 +55,7 @@
       - build-essential
       - unzip
       - software-properties-common
+      - git-delta
     state: present
   become: true
   when: ansible_os_family == 'Debian'
@@ -93,6 +95,7 @@
       - gcc
       - make
       - unzip
+      - git-delta
     state: present
   become: true
   when: ansible_os_family == 'RedHat'
@@ -113,6 +116,7 @@
       - htop
       - base-devel
       - unzip
+      - git-delta
     state: present
     update_cache: true
   become: true
