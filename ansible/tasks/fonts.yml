@@ -1,17 +1,25 @@
 ---
-# NvChad and Powerlevel10k both require a Nerd Font to render icons correctly.
-# JetBrainsMono Nerd Font is installed as the primary dev font.
+# MesloLGS NF is the font patched by the Powerlevel10k author and is required
+# for correct glyph rendering in both Powerlevel10k and NvChad.
+# Source: https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k
 
-# ── macOS ─────────────────────────────────────────────────────────────────────
-- name: Install JetBrainsMono Nerd Font (macOS)
-  community.general.homebrew_cask:
-    name: font-jetbrains-mono-nerd-font
-    state: present
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+- name: Set font destination directory (macOS)
+  set_fact:
+    font_dir: "{{ home_dir }}/Library/Fonts"
   when: ansible_os_family == 'Darwin'
 
-# ── Linux ─────────────────────────────────────────────────────────────────────
+- name: Set font destination directory (Linux)
+  set_fact:
+    font_dir: "{{ home_dir }}/.local/share/fonts/MesloLGS-NF"
+  when: ansible_os_family != 'Darwin'
+
+- name: Ensure font directory exists
+  file:
+    path: "{{ font_dir }}"
+    state: directory
+    mode: "0755"
+
+# ── Install fontconfig on Linux (provides fc-cache) ───────────────────────────
 - name: Install fontconfig (Debian/Ubuntu)
   apt:
     name: fontconfig
@@ -33,43 +41,19 @@
   become: true
   when: ansible_os_family == 'Archlinux'
 
-- name: Ensure user fonts directory exists (Linux)
-  file:
-    path: "{{ home_dir }}/.local/share/fonts/NerdFonts"
-    state: directory
-    mode: "0755"
-  when: ansible_os_family != 'Darwin'
-
-- name: Check if JetBrainsMono Nerd Font is already installed (Linux)
-  find:
-    paths: "{{ home_dir }}/.local/share/fonts/NerdFonts"
-    patterns: "JetBrainsMonoNerd*"
-  register: jbmono_stat
-  when: ansible_os_family != 'Darwin'
-
-- name: Download JetBrainsMono Nerd Font archive (Linux)
+# ── Download MesloLGS NF ──────────────────────────────────────────────────────
+- name: Download MesloLGS NF fonts
   get_url:
-    url: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-    dest: /tmp/JetBrainsMono.zip
+    url: "https://github.com/romkatv/powerlevel10k-media/raw/master/{{ item | urlencode }}"
+    dest: "{{ font_dir }}/{{ item }}"
     mode: "0644"
-  when: ansible_os_family != 'Darwin' and jbmono_stat.matched == 0
+  loop:
+    - "MesloLGS NF Regular.ttf"
+    - "MesloLGS NF Bold.ttf"
+    - "MesloLGS NF Italic.ttf"
+    - "MesloLGS NF Bold Italic.ttf"
 
-- name: Extract JetBrainsMono Nerd Font (Linux)
-  unarchive:
-    src: /tmp/JetBrainsMono.zip
-    dest: "{{ home_dir }}/.local/share/fonts/NerdFonts/"
-    remote_src: true
-    exclude:
-      - "LICENSE"
-      - "README.md"
-  when: ansible_os_family != 'Darwin' and jbmono_stat.matched == 0
-
-- name: Remove font archive
-  file:
-    path: /tmp/JetBrainsMono.zip
-    state: absent
-  when: ansible_os_family != 'Darwin'
-
-- name: Rebuild font cache (Linux)
+# ── Rebuild font cache (Linux only) ───────────────────────────────────────────
+- name: Rebuild font cache
   shell: fc-cache -fv
-  when: ansible_os_family != 'Darwin' and jbmono_stat.matched == 0
+  when: ansible_os_family != 'Darwin'

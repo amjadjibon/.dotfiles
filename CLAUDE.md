@@ -39,7 +39,7 @@ Cross-platform playbook supporting macOS, Ubuntu/Debian, Fedora/RHEL, Arch Linux
 | `packages` | Homebrew (macOS) or apt/dnf/pacman core tools |
 | `zsh` | zsh, Oh My Zsh, Powerlevel10k, autosuggestions |
 | `tmux` | tmux + TPM |
-| `fonts` | JetBrainsMono Nerd Font (required by NvChad + Powerlevel10k) |
+| `fonts` | MesloLGS NF (Powerlevel10k's patched font, required by NvChad + Powerlevel10k) |
 | `neovim` | Neovim (GitHub release on Ubuntu) + NvChad |
 | `go` | Go (brew/pkg manager; golang.org binary on Ubuntu) |
 | `python` | Miniforge (conda) |
