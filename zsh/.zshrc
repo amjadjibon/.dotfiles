@@ -130,6 +130,26 @@ export NVM_DIR="$HOME/.nvm"
 # alias zshconfig="nano ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Modern Unix tool inits
+eval "$(zoxide init zsh)"
+eval "$(mcfly init zsh)"
+
+# Modern replacements
+alias cat='bat --paging=never'
+alias ls='eza --icons'
+alias ll='eza -la --icons --git'
+alias lt='eza --tree --icons --level=2'
+alias du='dust'
+alias df='duf'
+alias ps='procs'
+alias ping='gping'
+alias grep='rg'
+alias find='fd'
+alias sed='sd'
+alias curl='xh'
+alias top='btm'
+alias dig='doggo'
+
 # common commands
 alias q=exit
 alias c=clear

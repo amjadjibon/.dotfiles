@@ -63,3 +63,7 @@
     - name: Node (NVM)
       import_tasks: tasks/node.yml
       tags: node
+
+    - name: Modern Unix tools (optional)
+      import_tasks: tasks/modern_unix.yml
+      tags: modern-unix
