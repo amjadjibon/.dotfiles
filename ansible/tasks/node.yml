@@ -1,0 +1,32 @@
+---
+- name: Check if NVM is installed
+  stat:
+    path: "{{ home_dir }}/.nvm/nvm.sh"
+  register: nvm_stat
+
+- name: Install NVM
+  shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+  args:
+    creates: "{{ home_dir }}/.nvm/nvm.sh"
+  when: not nvm_stat.stat.exists
+
+- name: Install Node.js LTS
+  shell: |
+    export NVM_DIR="{{ home_dir }}/.nvm"
+    source "$NVM_DIR/nvm.sh"
+    nvm install --lts
+    nvm alias default 'lts/*'
+  args:
+    creates: "{{ home_dir }}/.nvm/alias/default"
+  environment:
+    NVM_DIR: "{{ home_dir }}/.nvm"
+
+- name: Install global Node packages
+  shell: |
+    export NVM_DIR="{{ home_dir }}/.nvm"
+    source "$NVM_DIR/nvm.sh"
+    npm install -g typescript ts-node prettier eslint
+  args:
+    creates: "{{ home_dir }}/.nvm/versions/node"
+  environment:
+    NVM_DIR: "{{ home_dir }}/.nvm"

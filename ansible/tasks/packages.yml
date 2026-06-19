@@ -1,0 +1,119 @@
+---
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Check if Homebrew is installed
+  stat:
+    path: /opt/homebrew/bin/brew
+  register: brew_stat
+  when: ansible_os_family == 'Darwin'
+
+- name: Install Homebrew
+  shell: NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  args:
+    creates: /opt/homebrew/bin/brew
+  when: ansible_os_family == 'Darwin' and not brew_stat.stat.exists
+
+- name: Install core packages (macOS)
+  community.general.homebrew:
+    name:
+      - git
+      - curl
+      - wget
+      - ripgrep
+      - fd
+      - fzf
+      - lazygit
+      - tree
+      - jq
+      - htop
+    state: present
+    update_homebrew: true
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# ── Debian / Ubuntu ───────────────────────────────────────────────────────────
+- name: Update apt cache (Debian/Ubuntu)
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install core packages (Debian/Ubuntu)
+  apt:
+    name:
+      - git
+      - curl
+      - wget
+      - ripgrep
+      - fd-find
+      - fzf
+      - tree
+      - jq
+      - htop
+      - build-essential
+      - unzip
+      - software-properties-common
+    state: present
+  become: true
+  when: ansible_os_family == 'Debian'
+
+# lazygit is not in apt — install from GitHub release
+- name: Check if lazygit is installed (Debian/Ubuntu)
+  stat:
+    path: /usr/local/bin/lazygit
+  register: lazygit_stat
+  when: ansible_os_family == 'Debian'
+
+- name: Install lazygit (Debian/Ubuntu)
+  shell: |
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+    tar -C /usr/local/bin -xzf /tmp/lazygit.tar.gz lazygit
+    rm /tmp/lazygit.tar.gz
+  args:
+    creates: /usr/local/bin/lazygit
+  become: true
+  when: ansible_os_family == 'Debian' and not lazygit_stat.stat.exists
+
+# ── Fedora / RHEL ─────────────────────────────────────────────────────────────
+- name: Install core packages (Fedora/RHEL)
+  dnf:
+    name:
+      - git
+      - curl
+      - wget
+      - ripgrep
+      - fd-find
+      - fzf
+      - lazygit
+      - tree
+      - jq
+      - htop
+      - gcc
+      - make
+      - unzip
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+# ── Arch Linux ────────────────────────────────────────────────────────────────
+- name: Install core packages (Arch)
+  community.general.pacman:
+    name:
+      - git
+      - curl
+      - wget
+      - ripgrep
+      - fd
+      - fzf
+      - lazygit
+      - tree
+      - jq
+      - htop
+      - base-devel
+      - unzip
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == 'Archlinux'

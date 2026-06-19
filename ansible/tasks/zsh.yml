@@ -1,0 +1,68 @@
+---
+# ── Install zsh ───────────────────────────────────────────────────────────────
+- name: Install zsh (macOS)
+  community.general.homebrew:
+    name: zsh
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+- name: Install zsh (Debian/Ubuntu)
+  apt:
+    name: zsh
+    state: present
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install zsh (Fedora/RHEL)
+  dnf:
+    name: zsh
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install zsh (Arch)
+  community.general.pacman:
+    name: zsh
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'
+
+- name: Set zsh as default shell
+  user:
+    name: "{{ ansible_env.USER }}"
+    shell: /bin/zsh
+  become: true
+
+# ── Oh My Zsh ─────────────────────────────────────────────────────────────────
+- name: Check if Oh My Zsh is installed
+  stat:
+    path: "{{ omz_dir }}"
+  register: omz_stat
+
+- name: Install Oh My Zsh
+  shell: RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  args:
+    creates: "{{ omz_dir }}"
+  when: not omz_stat.stat.exists
+
+# ── Plugins & theme ───────────────────────────────────────────────────────────
+- name: Install Powerlevel10k theme
+  git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "{{ zsh_custom_dir }}/themes/powerlevel10k"
+    depth: 1
+    update: false
+
+- name: Install zsh-autosuggestions plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: "{{ zsh_custom_dir }}/plugins/zsh-autosuggestions"
+    update: false
+
+- name: Install zsh-syntax-highlighting
+  git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "{{ home_dir }}/zsh-syntax-highlighting"
+    update: false

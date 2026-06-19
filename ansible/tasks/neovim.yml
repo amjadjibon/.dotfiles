@@ -1,0 +1,81 @@
+---
+# ── Install Neovim ────────────────────────────────────────────────────────────
+- name: Install Neovim (macOS)
+  community.general.homebrew:
+    name: neovim
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# Ubuntu ships an outdated Neovim — install from GitHub releases instead
+- name: Set Neovim archive arch (Linux)
+  set_fact:
+    nvim_linux_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'x86_64' }}"
+  when: ansible_os_family != 'Darwin'
+
+- name: Check if Neovim is installed (Linux)
+  stat:
+    path: /usr/local/bin/nvim
+  register: nvim_linux_stat
+  when: ansible_os_family in ['Debian', 'RedHat']
+
+- name: Download Neovim tarball (Debian/Ubuntu, Fedora/RHEL)
+  get_url:
+    url: "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-{{ nvim_linux_arch }}.tar.gz"
+    dest: /tmp/nvim.tar.gz
+    mode: "0644"
+  when: ansible_os_family in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
+
+- name: Extract Neovim (Debian/Ubuntu, Fedora/RHEL)
+  unarchive:
+    src: /tmp/nvim.tar.gz
+    dest: /opt/
+    remote_src: true
+  become: true
+  when: ansible_os_family in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
+
+- name: Symlink Neovim binary (Debian/Ubuntu, Fedora/RHEL)
+  file:
+    src: "/opt/nvim-linux-{{ nvim_linux_arch }}/bin/nvim"
+    dest: /usr/local/bin/nvim
+    state: link
+  become: true
+  when: ansible_os_family in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
+
+- name: Install Neovim (Arch)
+  community.general.pacman:
+    name: neovim
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'
+
+# ── NvChad ────────────────────────────────────────────────────────────────────
+- name: Check if NvChad is installed
+  stat:
+    path: "{{ home_dir }}/.config/nvim/init.lua"
+  register: nvchad_stat
+
+- name: Clone NvChad starter config
+  git:
+    repo: https://github.com/NvChad/starter.git
+    dest: "{{ home_dir }}/.config/nvim"
+    update: false
+  when: not nvchad_stat.stat.exists
+
+- name: Remove NvChad starter .git (allow full customization)
+  file:
+    path: "{{ home_dir }}/.config/nvim/.git"
+    state: absent
+  when: not nvchad_stat.stat.exists
+
+- name: Bootstrap NvChad plugins headlessly
+  shell: "{{ nvim_bin }} --headless '+Lazy! sync' +qa"
+  args:
+    creates: "{{ home_dir }}/.local/share/nvim/lazy/NvChad"
+  environment:
+    PATH: "{{ go_bin_dir }}:{{ home_dir }}/.cargo/bin:{{ ansible_env.PATH }}"
+  when: not nvchad_stat.stat.exists
+  # First launch downloads all plugins — allow up to 3 minutes
+  async: 180
+  poll: 5

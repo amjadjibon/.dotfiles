@@ -1,0 +1,14 @@
+---
+- name: Symlink .zshrc
+  file:
+    src: "{{ dotfiles_dir }}/zsh/.zshrc"
+    dest: "{{ home_dir }}/.zshrc"
+    state: link
+    force: true
+
+- name: Symlink tmux.conf
+  file:
+    src: "{{ dotfiles_dir }}/tmux/tmux.conf"
+    dest: "{{ home_dir }}/.tmux.conf"
+    state: link
+    force: true

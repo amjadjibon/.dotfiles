@@ -1,0 +1,60 @@
+---
+- name: Development environment setup
+  hosts: local
+  connection: local
+  gather_facts: true
+  vars:
+    home_dir: "{{ ansible_env.HOME }}"
+    omz_dir: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    zsh_custom_dir: "{{ ansible_env.HOME }}/.oh-my-zsh/custom"
+    dotfiles_dir: "{{ playbook_dir }}/.."
+
+  pre_tasks:
+    - name: Set macOS paths
+      set_fact:
+        nvim_bin: /opt/homebrew/bin/nvim
+        go_bin_dir: /opt/homebrew/bin
+      when: ansible_os_family == 'Darwin'
+
+    - name: Set Linux paths
+      set_fact:
+        nvim_bin: /usr/local/bin/nvim
+        go_bin_dir: /usr/local/go/bin
+      when: ansible_os_family != 'Darwin'
+
+  tasks:
+    - name: Core packages
+      import_tasks: tasks/packages.yml
+      tags: packages
+
+    - name: Zsh + Oh My Zsh
+      import_tasks: tasks/zsh.yml
+      tags: zsh
+
+    - name: Tmux + TPM
+      import_tasks: tasks/tmux.yml
+      tags: tmux
+
+    - name: Neovim + NvChad
+      import_tasks: tasks/neovim.yml
+      tags: neovim
+
+    - name: Go
+      import_tasks: tasks/golang.yml
+      tags: go
+
+    - name: Python (Miniforge)
+      import_tasks: tasks/python.yml
+      tags: python
+
+    - name: Rust
+      import_tasks: tasks/rust.yml
+      tags: rust
+
+    - name: Node (NVM)
+      import_tasks: tasks/node.yml
+      tags: node
+
+    - name: Dotfiles symlinks
+      import_tasks: tasks/dotfiles.yml
+      tags: dotfiles

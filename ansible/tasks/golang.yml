@@ -1,0 +1,77 @@
+---
+# ── Install Go ────────────────────────────────────────────────────────────────
+- name: Install Go (macOS)
+  community.general.homebrew:
+    name: go
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# Fedora and Arch ship a recent enough Go via package manager
+- name: Install Go (Fedora/RHEL)
+  dnf:
+    name: golang
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Go (Arch)
+  community.general.pacman:
+    name: go
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'
+
+# Ubuntu apt ships an outdated Go — download the official binary instead
+- name: Set Go download arch (Linux)
+  set_fact:
+    go_linux_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+  when: ansible_os_family == 'Debian'
+
+- name: Check if Go is installed (Debian/Ubuntu)
+  stat:
+    path: /usr/local/go/bin/go
+  register: go_debian_stat
+  when: ansible_os_family == 'Debian'
+
+- name: Get latest Go version (Debian/Ubuntu)
+  uri:
+    url: https://go.dev/VERSION?m=text
+    return_content: true
+  register: go_latest_version
+  when: ansible_os_family == 'Debian' and not go_debian_stat.stat.exists
+
+- name: Download and install Go (Debian/Ubuntu)
+  shell: |
+    VERSION={{ go_latest_version.content.split('\n')[0] }}
+    curl -fsSL "https://go.dev/dl/${VERSION}.linux-{{ go_linux_arch }}.tar.gz" | tar -C /usr/local -xzf -
+  args:
+    creates: /usr/local/go/bin/go
+  become: true
+  when: ansible_os_family == 'Debian' and not go_debian_stat.stat.exists
+
+# ── Workspace & tools ─────────────────────────────────────────────────────────
+- name: Ensure Go workspace directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ home_dir }}/go/src"
+    - "{{ home_dir }}/go/bin"
+    - "{{ home_dir }}/go/pkg"
+
+- name: Install Go developer tools
+  shell: |
+    export PATH="{{ go_bin_dir }}:$PATH"
+    export GOPATH="{{ home_dir }}/go"
+    go install golang.org/x/tools/gopls@latest
+    go install github.com/go-delve/delve/cmd/dlv@latest
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    go install mvdan.cc/gofumpt@latest
+  args:
+    creates: "{{ home_dir }}/go/bin/gopls"
+  environment:
+    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    GOPATH: "{{ home_dir }}/go"

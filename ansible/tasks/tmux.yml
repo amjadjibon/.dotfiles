@@ -1,0 +1,35 @@
+---
+- name: Install tmux (macOS)
+  community.general.homebrew:
+    name: tmux
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+- name: Install tmux (Debian/Ubuntu)
+  apt:
+    name: tmux
+    state: present
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install tmux (Fedora/RHEL)
+  dnf:
+    name: tmux
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install tmux (Arch)
+  community.general.pacman:
+    name: tmux
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'
+
+- name: Install TPM (Tmux Plugin Manager)
+  git:
+    repo: https://github.com/tmux-plugins/tpm.git
+    dest: "{{ home_dir }}/.tmux/plugins/tpm"
+    update: false

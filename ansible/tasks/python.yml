@@ -1,0 +1,43 @@
+---
+# Miniforge gives a consistent conda/mamba environment across all platforms
+- name: Detect OS and architecture for Miniforge
+  set_fact:
+    miniforge_os: >-
+      {{ 'MacOSX' if ansible_os_family == 'Darwin' else 'Linux' }}
+    miniforge_arch: >-
+      {{
+        'arm64'   if (ansible_os_family == 'Darwin'  and ansible_architecture == 'arm64')  else
+        'x86_64'  if (ansible_os_family == 'Darwin'  and ansible_architecture != 'arm64')  else
+        'aarch64' if (ansible_os_family != 'Darwin'  and ansible_architecture == 'aarch64') else
+        'x86_64'
+      }}
+
+- name: Check if Miniforge is installed
+  stat:
+    path: "{{ home_dir }}/miniforge3/bin/conda"
+  register: miniforge_stat
+
+- name: Download Miniforge installer
+  get_url:
+    url: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-{{ miniforge_os }}-{{ miniforge_arch }}.sh"
+    dest: /tmp/miniforge3.sh
+    mode: "0755"
+  when: not miniforge_stat.stat.exists
+
+- name: Install Miniforge
+  shell: bash /tmp/miniforge3.sh -b -p {{ home_dir }}/miniforge3
+  args:
+    creates: "{{ home_dir }}/miniforge3/bin/conda"
+  when: not miniforge_stat.stat.exists
+
+- name: Remove Miniforge installer
+  file:
+    path: /tmp/miniforge3.sh
+    state: absent
+
+- name: Install common Python packages
+  shell: |
+    {{ home_dir }}/miniforge3/bin/pip install --upgrade pip
+    {{ home_dir }}/miniforge3/bin/pip install black ruff mypy ipython
+  args:
+    creates: "{{ home_dir }}/miniforge3/bin/black"
