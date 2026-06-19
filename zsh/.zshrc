@@ -198,10 +198,11 @@ alias git-list-untracked='git fetch --prune && git branch -r | awk "{print \$1}"
 # delete all untracked git branches
 alias git-delete-untracked='git fetch --prune && git branch -r | awk "{print \$1}" | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}" | xargs git branch -d'
 
+# uv
+eval "$(uv generate-shell-completion zsh)"
+
 # program aliases
-alias python='python3'
-alias pip='pip3'
-alias activate='source venv/bin/activate'
+alias activate='source .venv/bin/activate'
 
 # Shortcuts to vimrc and bashrc
 alias vimrc='vim ~/.vimrc'
@@ -220,20 +221,6 @@ alias goland='/usr/local/bin/goland'
 # ssh
 # alias uat=’ssh <insert whatever here>'
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/amjadhossain/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/Users/amjadhossain/miniforge3/etc/profile.d/conda.sh" ]; then
-        . "/Users/amjadhossain/miniforge3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/amjadhossain/miniforge3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
 
 source /Users/amjadhossain/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
