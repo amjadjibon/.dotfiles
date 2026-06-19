@@ -1,0 +1,75 @@
+---
+# NvChad and Powerlevel10k both require a Nerd Font to render icons correctly.
+# JetBrainsMono Nerd Font is installed as the primary dev font.
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Install JetBrainsMono Nerd Font (macOS)
+  community.general.homebrew_cask:
+    name: font-jetbrains-mono-nerd-font
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# ── Linux ─────────────────────────────────────────────────────────────────────
+- name: Install fontconfig (Debian/Ubuntu)
+  apt:
+    name: fontconfig
+    state: present
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install fontconfig (Fedora/RHEL)
+  dnf:
+    name: fontconfig
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install fontconfig (Arch)
+  community.general.pacman:
+    name: fontconfig
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'
+
+- name: Ensure user fonts directory exists (Linux)
+  file:
+    path: "{{ home_dir }}/.local/share/fonts/NerdFonts"
+    state: directory
+    mode: "0755"
+  when: ansible_os_family != 'Darwin'
+
+- name: Check if JetBrainsMono Nerd Font is already installed (Linux)
+  find:
+    paths: "{{ home_dir }}/.local/share/fonts/NerdFonts"
+    patterns: "JetBrainsMonoNerd*"
+  register: jbmono_stat
+  when: ansible_os_family != 'Darwin'
+
+- name: Download JetBrainsMono Nerd Font archive (Linux)
+  get_url:
+    url: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+    dest: /tmp/JetBrainsMono.zip
+    mode: "0644"
+  when: ansible_os_family != 'Darwin' and jbmono_stat.matched == 0
+
+- name: Extract JetBrainsMono Nerd Font (Linux)
+  unarchive:
+    src: /tmp/JetBrainsMono.zip
+    dest: "{{ home_dir }}/.local/share/fonts/NerdFonts/"
+    remote_src: true
+    exclude:
+      - "LICENSE"
+      - "README.md"
+  when: ansible_os_family != 'Darwin' and jbmono_stat.matched == 0
+
+- name: Remove font archive
+  file:
+    path: /tmp/JetBrainsMono.zip
+    state: absent
+  when: ansible_os_family != 'Darwin'
+
+- name: Rebuild font cache (Linux)
+  shell: fc-cache -fv
+  when: ansible_os_family != 'Darwin' and jbmono_stat.matched == 0

@@ -35,6 +35,10 @@
       import_tasks: tasks/tmux.yml
       tags: tmux
 
+    - name: Nerd Fonts
+      import_tasks: tasks/fonts.yml
+      tags: fonts
+
     - name: Neovim + NvChad
       import_tasks: tasks/neovim.yml
       tags: neovim
