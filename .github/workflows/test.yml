@@ -7,7 +7,36 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  test-native:
+    name: Native Ubuntu (GitHub runner)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          pip3 install --break-system-packages ansible
+          ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Run playbook
+        run: >
+          ansible-playbook -i ansible/inventory.ini ansible/setup.yml
+          --extra-vars in_docker=true
+          -e ansible_python_interpreter=/usr/bin/python3
+
+      - name: Idempotency check (second run)
+        run: |
+          output=$(ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
+            --extra-vars in_docker=true \
+            -e ansible_python_interpreter=/usr/bin/python3 2>&1)
+          echo "$output"
+          if echo "$output" | grep -qE "changed=[1-9]"; then
+            echo "FAIL: not idempotent"
+            exit 1
+          fi
+
+  test-docker:
+    name: Docker (${{ matrix.distro }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
