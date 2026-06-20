@@ -92,7 +92,7 @@
       import_tasks: tasks/devtools.yml
       tags: devtools
 
-    - name: Extras (modern Unix + dev tools: fzf, ripgrep, fd, bat, delta, eza, jq, yq, just, shellcheck, kubectx, kubens, lazydocker, dive, kind, act, grpcurl, websocat, gcloud, az, vault, pre-commit)
+    - name: Extras
       import_tasks: tasks/extras.yml
       tags: extras
       when: install_extras | default(false) | bool
