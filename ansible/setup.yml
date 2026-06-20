@@ -83,3 +83,7 @@
     - name: Docker + Compose
       import_tasks: tasks/docker.yml
       tags: docker
+
+    - name: AI CLI tools
+      import_tasks: tasks/aicli.yml
+      tags: aicli

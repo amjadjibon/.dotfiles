@@ -1,0 +1,15 @@
+---
+- name: Install AI CLI tools via npm
+  shell: |
+    export NVM_DIR="{{ home_dir }}/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    npm list -g {{ item }} --depth=0 2>/dev/null | grep -q {{ item }} || npm install -g {{ item }}
+  args:
+    executable: /bin/bash
+  environment:
+    NVM_DIR: "{{ home_dir }}/.nvm"
+  changed_when: false
+  loop:
+    - "@anthropic-ai/claude-code"
+    - "@openai/codex"
+    - opencode
