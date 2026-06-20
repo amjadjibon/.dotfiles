@@ -30,7 +30,7 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 # ── Linux — package manager for Python/system tools ───────────────────────────
 - name: Install non-Rust modern tools via apt (Debian/Ubuntu)
@@ -43,7 +43,7 @@
       - tldr
     state: present
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install non-Rust modern tools via dnf (Fedora/RHEL)
   dnf:
@@ -55,7 +55,7 @@
       - tealdeer
     state: present
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install non-Rust modern tools via pacman (Arch)
   community.general.pacman:
@@ -72,7 +72,7 @@
       - xh
     state: present
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'
 
 # ── Linux — cargo-binstall for Rust tools ─────────────────────────────────────
 # cargo-binstall downloads pre-compiled binaries — no compilation needed.
@@ -82,7 +82,7 @@
     creates: "{{ home_dir }}/.cargo/bin/cargo-binstall"
   environment:
     PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family != 'Darwin'
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Install Rust-based modern tools via cargo-binstall (Linux)
   shell: "{{ home_dir }}/.cargo/bin/cargo-binstall -y {{ item.crate }}"
@@ -104,4 +104,4 @@
     - { crate: procs,      bin: procs     }
     - { crate: xh,         bin: xh        }
     - { crate: zoxide,     bin: zoxide    }
-  when: ansible_os_family not in ['Darwin', 'Archlinux']
+  when: ansible_facts['os_family'] not in ['Darwin', 'Archlinux']

@@ -6,7 +6,7 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 # ── Debian / Ubuntu ───────────────────────────────────────────────────────────
 - name: Add HashiCorp GPG key (Debian/Ubuntu)
@@ -15,15 +15,19 @@
   args:
     creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Add HashiCorp apt repository (Debian/Ubuntu)
-  apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+  deb822_repository:
+    name: hashicorp
+    types: deb
+    uris: https://apt.releases.hashicorp.com
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: main
+    signed_by: /usr/share/keyrings/hashicorp-archive-keyring.gpg
     state: present
-    filename: hashicorp
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install Terraform (Debian/Ubuntu)
   apt:
@@ -31,7 +35,7 @@
     state: present
     update_cache: true
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 # ── Fedora / RHEL ─────────────────────────────────────────────────────────────
 - name: Add HashiCorp dnf repository (Fedora/RHEL)
@@ -40,14 +44,14 @@
   args:
     creates: /etc/yum.repos.d/hashicorp.repo
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install Terraform (Fedora/RHEL)
   dnf:
     name: terraform
     state: present
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install Terraform (Arch)
@@ -55,4 +59,4 @@
     name: terraform
     state: present
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'

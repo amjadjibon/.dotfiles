@@ -6,14 +6,14 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 # ── Debian / Ubuntu ───────────────────────────────────────────────────────────
 - name: Check if jj is installed (Debian/Ubuntu)
   stat:
     path: /usr/local/bin/jj
   register: jj_stat
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install jj (Debian/Ubuntu)
   shell: |
@@ -25,14 +25,14 @@
   args:
     creates: /usr/local/bin/jj
   become: true
-  when: ansible_os_family == 'Debian' and not jj_stat.stat.exists
+  when: ansible_facts['os_family'] == 'Debian' and not jj_stat.stat.exists
 
 # ── Fedora / RHEL ─────────────────────────────────────────────────────────────
 - name: Check if jj is installed (Fedora/RHEL)
   stat:
     path: /usr/local/bin/jj
   register: jj_stat_rhel
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install jj (Fedora/RHEL)
   shell: |
@@ -44,7 +44,7 @@
   args:
     creates: /usr/local/bin/jj
   become: true
-  when: ansible_os_family == 'RedHat' and not jj_stat_rhel.stat.exists
+  when: ansible_facts['os_family'] == 'RedHat' and not jj_stat_rhel.stat.exists
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install jj (Arch)
@@ -52,4 +52,4 @@
     name: jujutsu
     state: present
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'

@@ -6,12 +6,12 @@
 - name: Set font destination directory (macOS)
   set_fact:
     font_dir: "{{ home_dir }}/Library/Fonts"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Set font destination directory (Linux)
   set_fact:
     font_dir: "{{ home_dir }}/.local/share/fonts/MesloLGS-NF"
-  when: ansible_os_family != 'Darwin'
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Ensure font directory exists
   file:
@@ -25,21 +25,21 @@
     name: fontconfig
     state: present
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install fontconfig (Fedora/RHEL)
   dnf:
     name: fontconfig
     state: present
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install fontconfig (Arch)
   community.general.pacman:
     name: fontconfig
     state: present
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'
 
 # ── Download MesloLGS NF ──────────────────────────────────────────────────────
 - name: Download MesloLGS NF fonts
@@ -56,4 +56,4 @@
 # ── Rebuild font cache (Linux only) ───────────────────────────────────────────
 - name: Rebuild font cache
   shell: fc-cache -fv
-  when: ansible_os_family != 'Darwin'
+  when: ansible_facts['os_family'] != 'Darwin'

@@ -6,28 +6,28 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Install zsh (Debian/Ubuntu)
   apt:
     name: zsh
     state: present
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install zsh (Fedora/RHEL)
   dnf:
     name: zsh
     state: present
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install zsh (Arch)
   community.general.pacman:
     name: zsh
     state: present
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'
 
 - name: Set zsh as default shell
   user:

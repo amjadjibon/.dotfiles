@@ -6,40 +6,40 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 # ── Linux (official AWS installer) ────────────────────────────────────────────
 - name: Check if AWS CLI is installed (Linux)
   stat:
     path: /usr/local/bin/aws
   register: awscli_stat
-  when: ansible_os_family != 'Darwin'
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Set AWS CLI arch (Linux)
   set_fact:
-    aws_arch: "{{ 'aarch64' if ansible_architecture == 'aarch64' else 'x86_64' }}"
-  when: ansible_os_family != 'Darwin'
+    aws_arch: "{{ 'aarch64' if ansible_facts['architecture'] == 'aarch64' else 'x86_64' }}"
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Download AWS CLI installer (Linux)
   get_url:
     url: "https://awscli.amazonaws.com/awscli-exe-linux-{{ aws_arch }}.zip"
     dest: /tmp/awscliv2.zip
     mode: "0644"
-  when: ansible_os_family != 'Darwin' and not awscli_stat.stat.exists
+  when: ansible_facts['os_family'] != 'Darwin' and not awscli_stat.stat.exists
 
 - name: Unzip AWS CLI installer (Linux)
   unarchive:
     src: /tmp/awscliv2.zip
     dest: /tmp
     remote_src: true
-  when: ansible_os_family != 'Darwin' and not awscli_stat.stat.exists
+  when: ansible_facts['os_family'] != 'Darwin' and not awscli_stat.stat.exists
 
 - name: Install AWS CLI (Linux)
   shell: /tmp/aws/install
   become: true
   args:
     creates: /usr/local/bin/aws
-  when: ansible_os_family != 'Darwin' and not awscli_stat.stat.exists
+  when: ansible_facts['os_family'] != 'Darwin' and not awscli_stat.stat.exists
 
 - name: Clean up AWS CLI installer (Linux)
   file:
@@ -48,4 +48,4 @@
   loop:
     - /tmp/awscliv2.zip
     - /tmp/aws
-  when: ansible_os_family != 'Darwin' and not awscli_stat.stat.exists
+  when: ansible_facts['os_family'] != 'Darwin' and not awscli_stat.stat.exists

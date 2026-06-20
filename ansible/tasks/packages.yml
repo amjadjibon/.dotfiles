@@ -4,13 +4,13 @@
   stat:
     path: /opt/homebrew/bin/brew
   register: brew_stat
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Install Homebrew
   shell: NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   args:
     creates: /opt/homebrew/bin/brew
-  when: ansible_os_family == 'Darwin' and not brew_stat.stat.exists
+  when: ansible_facts['os_family'] == 'Darwin' and not brew_stat.stat.exists
 
 - name: Install core packages (macOS)
   community.general.homebrew:
@@ -31,7 +31,7 @@
     update_homebrew: true
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 # ── Debian / Ubuntu ───────────────────────────────────────────────────────────
 - name: Update apt cache (Debian/Ubuntu)
@@ -39,7 +39,7 @@
     update_cache: true
     cache_valid_time: 3600
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install core packages (Debian/Ubuntu)
   apt:
@@ -59,14 +59,14 @@
       - git-delta
     state: present
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 # fastfetch is not in apt — install from GitHub release
 - name: Check if fastfetch is installed (Debian/Ubuntu)
   stat:
     path: /usr/local/bin/fastfetch
   register: fastfetch_stat
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install fastfetch (Debian/Ubuntu)
   shell: |
@@ -77,14 +77,14 @@
   args:
     creates: /usr/local/bin/fastfetch
   become: true
-  when: ansible_os_family == 'Debian' and not fastfetch_stat.stat.exists
+  when: ansible_facts['os_family'] == 'Debian' and not fastfetch_stat.stat.exists
 
 # lazygit is not in apt — install from GitHub release
 - name: Check if lazygit is installed (Debian/Ubuntu)
   stat:
     path: /usr/local/bin/lazygit
   register: lazygit_stat
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install lazygit (Debian/Ubuntu)
   shell: |
@@ -95,7 +95,7 @@
   args:
     creates: /usr/local/bin/lazygit
   become: true
-  when: ansible_os_family == 'Debian' and not lazygit_stat.stat.exists
+  when: ansible_facts['os_family'] == 'Debian' and not lazygit_stat.stat.exists
 
 # ── Fedora / RHEL ─────────────────────────────────────────────────────────────
 - name: Install core packages (Fedora/RHEL)
@@ -117,14 +117,14 @@
       - git-delta
     state: present
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 # fastfetch is not in dnf — install from GitHub release
 - name: Check if fastfetch is installed (Fedora/RHEL)
   stat:
     path: /usr/bin/fastfetch
   register: fastfetch_stat_rhel
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install fastfetch (Fedora/RHEL)
   shell: |
@@ -134,7 +134,7 @@
   args:
     creates: /usr/bin/fastfetch
   become: true
-  when: ansible_os_family == 'RedHat' and not fastfetch_stat_rhel.stat.exists
+  when: ansible_facts['os_family'] == 'RedHat' and not fastfetch_stat_rhel.stat.exists
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install core packages (Arch)
@@ -157,4 +157,4 @@
     state: present
     update_cache: true
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'

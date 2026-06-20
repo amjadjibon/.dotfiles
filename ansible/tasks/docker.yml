@@ -6,7 +6,7 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 # ── Debian / Ubuntu ───────────────────────────────────────────────────────────
 - name: Add Docker GPG key (Debian/Ubuntu)
@@ -15,15 +15,20 @@
   args:
     creates: /usr/share/keyrings/docker-archive-keyring.gpg
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Add Docker apt repository (Debian/Ubuntu)
-  apt_repository:
-    repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+  deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/ubuntu
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: stable
+    architectures: "{{ ansible_facts['architecture'] | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}"
+    signed_by: /usr/share/keyrings/docker-archive-keyring.gpg
     state: present
-    filename: docker
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install Docker (Debian/Ubuntu)
   apt:
@@ -36,7 +41,7 @@
     state: present
     update_cache: true
   become: true
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Enable and start Docker service (Debian/Ubuntu)
   systemd:
@@ -44,7 +49,7 @@
     enabled: true
     state: started
   become: true
-  when: ansible_os_family == 'Debian' and not (headless | default(false))
+  when: ansible_facts['os_family'] == 'Debian' and not (headless | default(false))
 
 # ── Fedora / RHEL ─────────────────────────────────────────────────────────────
 - name: Add Docker dnf repository (Fedora/RHEL)
@@ -53,7 +58,7 @@
   args:
     creates: /etc/yum.repos.d/docker-ce.repo
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install Docker (Fedora/RHEL)
   dnf:
@@ -65,7 +70,7 @@
       - docker-compose-plugin
     state: present
   become: true
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Enable and start Docker service (Fedora/RHEL)
   systemd:
@@ -73,7 +78,7 @@
     enabled: true
     state: started
   become: true
-  when: ansible_os_family == 'RedHat' and not (headless | default(false))
+  when: ansible_facts['os_family'] == 'RedHat' and not (headless | default(false))
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install Docker (Arch)
@@ -83,7 +88,7 @@
       - docker-compose
     state: present
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'
 
 - name: Enable and start Docker service (Arch)
   systemd:
@@ -91,4 +96,4 @@
     enabled: true
     state: started
   become: true
-  when: ansible_os_family == 'Archlinux' and not (headless | default(false))
+  when: ansible_facts['os_family'] == 'Archlinux' and not (headless | default(false))

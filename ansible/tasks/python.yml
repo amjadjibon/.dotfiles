@@ -6,7 +6,7 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Install uv (Linux)
   shell: curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -14,7 +14,7 @@
     creates: "{{ home_dir }}/.local/bin/uv"
   environment:
     HOME: "{{ home_dir }}"
-  when: ansible_os_family != 'Darwin'
+  when: ansible_facts['os_family'] != 'Darwin'
 
 # ── Python runtime ────────────────────────────────────────────────────────────
 - name: Install latest stable Python via uv

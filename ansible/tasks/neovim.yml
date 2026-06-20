@@ -6,26 +6,26 @@
     state: present
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
-  when: ansible_os_family == 'Darwin'
+  when: ansible_facts['os_family'] == 'Darwin'
 
 # Ubuntu ships an outdated Neovim — install from GitHub releases instead
 - name: Set Neovim archive arch (Linux)
   set_fact:
-    nvim_linux_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'x86_64' }}"
-  when: ansible_os_family != 'Darwin'
+    nvim_linux_arch: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'x86_64' }}"
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Check if Neovim is installed (Linux)
   stat:
     path: /usr/local/bin/nvim
   register: nvim_linux_stat
-  when: ansible_os_family in ['Debian', 'RedHat']
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
 
 - name: Download Neovim tarball (Debian/Ubuntu, Fedora/RHEL)
   get_url:
     url: "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-{{ nvim_linux_arch }}.tar.gz"
     dest: /tmp/nvim.tar.gz
     mode: "0644"
-  when: ansible_os_family in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
 
 - name: Extract Neovim (Debian/Ubuntu, Fedora/RHEL)
   unarchive:
@@ -33,7 +33,7 @@
     dest: /opt/
     remote_src: true
   become: true
-  when: ansible_os_family in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
 
 - name: Symlink Neovim binary (Debian/Ubuntu, Fedora/RHEL)
   file:
@@ -41,14 +41,14 @@
     dest: /usr/local/bin/nvim
     state: link
   become: true
-  when: ansible_os_family in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and not nvim_linux_stat.stat.exists
 
 - name: Install Neovim (Arch)
   community.general.pacman:
     name: neovim
     state: present
   become: true
-  when: ansible_os_family == 'Archlinux'
+  when: ansible_facts['os_family'] == 'Archlinux'
 
 # ── NvChad ────────────────────────────────────────────────────────────────────
 - name: Check if NvChad is installed
