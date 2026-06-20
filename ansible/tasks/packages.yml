@@ -57,10 +57,27 @@
       - unzip
       - software-properties-common
       - git-delta
-      - fastfetch
     state: present
   become: true
   when: ansible_os_family == 'Debian'
+
+# fastfetch is not in apt — install from GitHub release
+- name: Check if fastfetch is installed (Debian/Ubuntu)
+  stat:
+    path: /usr/local/bin/fastfetch
+  register: fastfetch_stat
+  when: ansible_os_family == 'Debian'
+
+- name: Install fastfetch (Debian/Ubuntu)
+  shell: |
+    FASTFETCH_VERSION=$(curl -s "https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest" | grep '"tag_name"' | sed 's/.*"\(.*\)".*/\1/')
+    curl -Lo /tmp/fastfetch.deb "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb"
+    dpkg -i /tmp/fastfetch.deb
+    rm /tmp/fastfetch.deb
+  args:
+    creates: /usr/local/bin/fastfetch
+  become: true
+  when: ansible_os_family == 'Debian' and not fastfetch_stat.stat.exists
 
 # lazygit is not in apt — install from GitHub release
 - name: Check if lazygit is installed (Debian/Ubuntu)
@@ -98,10 +115,26 @@
       - make
       - unzip
       - git-delta
-      - fastfetch
     state: present
   become: true
   when: ansible_os_family == 'RedHat'
+
+# fastfetch is not in dnf — install from GitHub release
+- name: Check if fastfetch is installed (Fedora/RHEL)
+  stat:
+    path: /usr/bin/fastfetch
+  register: fastfetch_stat_rhel
+  when: ansible_os_family == 'RedHat'
+
+- name: Install fastfetch (Fedora/RHEL)
+  shell: |
+    curl -Lo /tmp/fastfetch.rpm "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.rpm"
+    rpm -i /tmp/fastfetch.rpm
+    rm /tmp/fastfetch.rpm
+  args:
+    creates: /usr/bin/fastfetch
+  become: true
+  when: ansible_os_family == 'RedHat' and not fastfetch_stat_rhel.stat.exists
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install core packages (Arch)
