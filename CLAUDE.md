@@ -72,7 +72,7 @@ ansible-playbook -i ansible/inventory.ini ansible/setup.yml --tags neovim
 ## Docker Tests
 
 Test the playbook against Ubuntu, Fedora, and Arch Linux containers.
-Two tasks are skipped in Docker via `in_docker=true`: setting the default shell (requires PAM) and NvChad headless bootstrap (requires TTY).
+Two tasks are skipped in Docker via `headless=true`: setting the default shell (requires PAM) and NvChad headless bootstrap (requires TTY).
 
 ```sh
 make test           # run all three

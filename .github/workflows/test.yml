@@ -21,13 +21,13 @@ jobs:
       - name: Run playbook
         run: >
           ansible-playbook -i ansible/inventory.ini ansible/setup.yml
-          --extra-vars in_docker=true
+          --extra-vars headless=true
           -e ansible_python_interpreter=/usr/bin/python3
 
       - name: Idempotency check (second run)
         run: |
           output=$(ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
-            --extra-vars in_docker=true \
+            --extra-vars headless=true \
             -e ansible_python_interpreter=/usr/bin/python3 2>&1)
           echo "$output"
           if echo "$output" | grep -qE "changed=[1-9]"; then

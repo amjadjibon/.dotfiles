@@ -2,7 +2,7 @@
 set -euo pipefail
 
 PLAYBOOK="ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
-  --extra-vars in_docker=true \
+  --extra-vars headless=true \
   -e ansible_python_interpreter=/usr/bin/python3"
 
 echo "=== First run ==="
