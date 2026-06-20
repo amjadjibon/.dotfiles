@@ -26,6 +26,7 @@
       - tree
       - jq
       - htop
+      - fastfetch
     state: present
     update_homebrew: true
   environment:
@@ -56,6 +57,7 @@
       - unzip
       - software-properties-common
       - git-delta
+      - fastfetch
     state: present
   become: true
   when: ansible_os_family == 'Debian'
@@ -96,6 +98,7 @@
       - make
       - unzip
       - git-delta
+      - fastfetch
     state: present
   become: true
   when: ansible_os_family == 'RedHat'
@@ -117,6 +120,7 @@
       - base-devel
       - unzip
       - git-delta
+      - fastfetch
     state: present
     update_cache: true
   become: true
