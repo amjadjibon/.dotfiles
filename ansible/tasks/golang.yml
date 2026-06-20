@@ -5,7 +5,7 @@
     name: go
     state: present
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
 # Fedora and Arch ship a recent enough Go via package manager
@@ -68,7 +68,7 @@
   args:
     creates: "{{ home_dir }}/go/bin/gopls"
   environment:
-    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"
 
 - name: Install delve (dlv)
@@ -76,7 +76,7 @@
   args:
     creates: "{{ home_dir }}/go/bin/dlv"
   environment:
-    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"
 
 - name: Install golangci-lint
@@ -84,7 +84,7 @@
   args:
     creates: "{{ home_dir }}/go/bin/golangci-lint"
   environment:
-    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"
 
 - name: Install gofumpt
@@ -92,5 +92,5 @@
   args:
     creates: "{{ home_dir }}/go/bin/gofumpt"
   environment:
-    PATH: "{{ go_bin_dir }}:{{ ansible_env.PATH }}"
+    PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"

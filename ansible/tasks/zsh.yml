@@ -5,7 +5,7 @@
     name: zsh
     state: present
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Install zsh (Debian/Ubuntu)
@@ -31,7 +31,7 @@
 
 - name: Set zsh as default shell
   user:
-    name: "{{ ansible_env.USER }}"
+    name: "{{ ansible_facts['env']['USER'] }}"
     shell: /bin/zsh
   become: true
   when: not (headless | default(false))

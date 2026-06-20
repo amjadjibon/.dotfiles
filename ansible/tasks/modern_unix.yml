@@ -29,7 +29,7 @@
       - cheat       # interactive cheatsheets
     state: present
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
 # ── Linux — package manager for Python/system tools ───────────────────────────
@@ -81,7 +81,7 @@
   args:
     creates: "{{ home_dir }}/.cargo/bin/cargo-binstall"
   environment:
-    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Install Rust-based modern tools via cargo-binstall (Linux)
@@ -89,7 +89,7 @@
   args:
     creates: "{{ home_dir }}/.cargo/bin/{{ item.bin }}"
   environment:
-    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   loop:
     - { crate: eza,        bin: eza       }
     - { crate: lsd,        bin: lsd       }

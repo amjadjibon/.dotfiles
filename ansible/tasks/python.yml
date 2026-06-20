@@ -5,7 +5,7 @@
     name: uv
     state: present
   environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
 - name: Install uv (Linux)
@@ -21,17 +21,17 @@
   shell: uv python install
   changed_when: false
   environment:
-    PATH: "{{ home_dir }}/.local/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ home_dir }}/.local/bin:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 # ── Global tools ──────────────────────────────────────────────────────────────
 - name: Install Python tools via uv tool
-  shell: uv tool install {{ item }}
+  shell: uv tool install {{ item.pkg }}
   args:
-    creates: "{{ home_dir }}/.local/bin/{{ item }}"
+    creates: "{{ home_dir }}/.local/bin/{{ item.bin }}"
   environment:
-    PATH: "{{ home_dir }}/.local/bin:/opt/homebrew/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ home_dir }}/.local/bin:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   loop:
-    - ruff
-    - ty
-    - ipython
-    - jupyter
+    - { pkg: ruff,       bin: ruff       }
+    - { pkg: ty,         bin: ty         }
+    - { pkg: ipython,    bin: ipython    }
+    - { pkg: jupyterlab, bin: jupyter    }

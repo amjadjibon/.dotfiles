@@ -4,9 +4,9 @@
   connection: local
   gather_facts: true
   vars:
-    home_dir: "{{ ansible_env.HOME }}"
-    omz_dir: "{{ ansible_env.HOME }}/.oh-my-zsh"
-    zsh_custom_dir: "{{ ansible_env.HOME }}/.oh-my-zsh/custom"
+    home_dir: "{{ ansible_facts['env']['HOME'] }}"
+    omz_dir: "{{ ansible_facts['env']['HOME'] }}/.oh-my-zsh"
+    zsh_custom_dir: "{{ ansible_facts['env']['HOME'] }}/.oh-my-zsh/custom"
     dotfiles_dir: "{{ playbook_dir }}/.."
 
   pre_tasks:

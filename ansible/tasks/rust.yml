@@ -18,4 +18,4 @@
   args:
     creates: "{{ home_dir }}/.cargo/bin/cargo-watch"
   environment:
-    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
