@@ -1,0 +1,94 @@
+---
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Install Docker Desktop (macOS)
+  community.general.homebrew_cask:
+    name: docker
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# ── Debian / Ubuntu ───────────────────────────────────────────────────────────
+- name: Add Docker GPG key (Debian/Ubuntu)
+  shell: |
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Add Docker apt repository (Debian/Ubuntu)
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install Docker (Debian/Ubuntu)
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Enable and start Docker service (Debian/Ubuntu)
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+  become: true
+  when: ansible_os_family == 'Debian' and not (headless | default(false))
+
+# ── Fedora / RHEL ─────────────────────────────────────────────────────────────
+- name: Add Docker dnf repository (Fedora/RHEL)
+  shell: |
+    dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+  args:
+    creates: /etc/yum.repos.d/docker-ce.repo
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Docker (Fedora/RHEL)
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Enable and start Docker service (Fedora/RHEL)
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+  become: true
+  when: ansible_os_family == 'RedHat' and not (headless | default(false))
+
+# ── Arch Linux ────────────────────────────────────────────────────────────────
+- name: Install Docker (Arch)
+  community.general.pacman:
+    name:
+      - docker
+      - docker-compose
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'
+
+- name: Enable and start Docker service (Arch)
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+  become: true
+  when: ansible_os_family == 'Archlinux' and not (headless | default(false))

@@ -79,3 +79,7 @@
     - name: Terraform
       import_tasks: tasks/terraform.yml
       tags: terraform
+
+    - name: Docker + Compose
+      import_tasks: tasks/docker.yml
+      tags: docker
