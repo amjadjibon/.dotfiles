@@ -13,10 +13,11 @@
 - name: Install Node.js LTS
   shell: |
     export NVM_DIR="{{ home_dir }}/.nvm"
-    source "$NVM_DIR/nvm.sh"
+    . "$NVM_DIR/nvm.sh"
     nvm install --lts
     nvm alias default 'lts/*'
   args:
+    executable: /bin/bash
     creates: "{{ home_dir }}/.nvm/alias/default"
   environment:
     NVM_DIR: "{{ home_dir }}/.nvm"
@@ -24,9 +25,10 @@
 - name: Install global Node packages
   shell: |
     export NVM_DIR="{{ home_dir }}/.nvm"
-    source "$NVM_DIR/nvm.sh"
+    . "$NVM_DIR/nvm.sh"
     npm install -g typescript ts-node prettier eslint
   args:
+    executable: /bin/bash
     creates: "{{ home_dir }}/.nvm/versions/node"
   environment:
     NVM_DIR: "{{ home_dir }}/.nvm"

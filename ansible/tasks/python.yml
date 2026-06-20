@@ -34,3 +34,4 @@
     - ruff
     - ty
     - ipython
+    - jupyter
