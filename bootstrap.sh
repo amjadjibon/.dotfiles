@@ -100,13 +100,25 @@ cd "$DOTFILES_DIR"
 yellow "==> Installing Ansible Galaxy requirements..."
 ansible-galaxy collection install -r ansible/requirements.yml
 
+# ── Parse args ────────────────────────────────────────────────────────────────
+EXTRAS_VAR=""
+PASS_ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" == "--extras" ]]; then
+    EXTRAS_VAR="-e install_extras=true"
+  else
+    PASS_ARGS+=("$arg")
+  fi
+done
+
 # ── Run playbook ──────────────────────────────────────────────────────────────
 yellow "==> Running setup playbook (this will take a while)..."
 ansible-playbook \
   -i ansible/inventory.ini \
   ansible/setup.yml \
   -e ansible_python_interpreter=/usr/bin/python3 \
-  "$@"
+  $EXTRAS_VAR \
+  "${PASS_ARGS[@]}"
 
 green ""
 green "==> Done! Restart your shell or run: source ~/.zshrc"

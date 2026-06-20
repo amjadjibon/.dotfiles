@@ -1,0 +1,450 @@
+---
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Install extra tools (macOS)
+  community.general.homebrew:
+    name:
+      # shell / search
+      - fzf
+      - ripgrep
+      - fd
+      - bat
+      - git-delta
+      - jq
+      - yq
+      - shellcheck
+      # modern Unix replacements
+      - eza
+      - lsd
+      - dust
+      - duf
+      - broot
+      - mcfly
+      - choose
+      - sd
+      - tldr
+      - bottom
+      - glances
+      - hyperfine
+      - gping
+      - procs
+      - httpie
+      - curlie
+      - xh
+      - zoxide
+      - doggo
+      - cheat
+      # dev workflow
+      - just
+      - act
+      - grpcurl
+      - websocat
+      # k8s / containers
+      - kubectx
+      - lazydocker
+      - dive
+      - kind
+      # cloud / secrets
+      - azure-cli
+      - hashicorp/tap/vault
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install Google Cloud SDK (macOS)
+  community.general.homebrew_cask:
+    name: google-cloud-sdk
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: ansible_facts['os_family'] == 'Darwin'
+
+# ── Debian / Ubuntu ───────────────────────────────────────────────────────────
+- name: Install extra apt tools (Debian/Ubuntu)
+  apt:
+    name:
+      - fzf
+      - ripgrep
+      - fd-find
+      - bat
+      - jq
+      - shellcheck
+      - duf
+      - httpie
+      - glances
+      - tldr
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Symlink fdfind → fd (Debian/Ubuntu)
+  file:
+    src: /usr/bin/fdfind
+    dest: /usr/local/bin/fd
+    state: link
+    force: true
+  become: true
+  failed_when: false
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Symlink batcat → bat (Debian/Ubuntu)
+  file:
+    src: /usr/bin/batcat
+    dest: /usr/local/bin/bat
+    state: link
+    force: true
+  become: true
+  failed_when: false
+  when: ansible_facts['os_family'] == 'Debian'
+
+# ── Fedora / RHEL ─────────────────────────────────────────────────────────────
+- name: Install extra dnf tools (Fedora/RHEL)
+  dnf:
+    name:
+      - fzf
+      - ripgrep
+      - fd-find
+      - bat
+      - jq
+      - ShellCheck
+      - duf
+      - httpie
+      - glances
+      - tealdeer
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+# ── Arch Linux ────────────────────────────────────────────────────────────────
+- name: Install extra tools (Arch)
+  community.general.pacman:
+    name:
+      - fzf
+      - ripgrep
+      - fd
+      - bat
+      - git-delta
+      - jq
+      - go-yq
+      - just
+      - shellcheck
+      - duf
+      - httpie
+      - glances
+      - tldr
+      - bottom
+      - hyperfine
+      - procs
+      - zoxide
+      - xh
+      - kubectx
+      - dive
+      - kind
+      - websocat
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == 'Archlinux'
+
+# ── Linux: Rust-based modern tools via cargo-binstall ─────────────────────────
+- name: Install cargo-binstall (Linux)
+  shell: cargo install cargo-binstall
+  args:
+    creates: "{{ home_dir }}/.cargo/bin/cargo-binstall"
+  environment:
+    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: ansible_facts['os_family'] not in ['Darwin', 'Archlinux']
+
+- name: Install Rust-based modern tools via cargo-binstall (Linux)
+  shell: "{{ home_dir }}/.cargo/bin/cargo-binstall -y {{ item.crate }}"
+  args:
+    creates: "{{ home_dir }}/.cargo/bin/{{ item.bin }}"
+  environment:
+    PATH: "{{ home_dir }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+  loop:
+    - { crate: eza,       bin: eza       }
+    - { crate: lsd,       bin: lsd       }
+    - { crate: du-dust,   bin: dust      }
+    - { crate: broot,     bin: broot     }
+    - { crate: mcfly,     bin: mcfly     }
+    - { crate: choose,    bin: choose    }
+    - { crate: sd,        bin: sd        }
+    - { crate: bottom,    bin: btm       }
+    - { crate: hyperfine, bin: hyperfine }
+    - { crate: gping,     bin: gping     }
+    - { crate: procs,     bin: procs     }
+    - { crate: xh,        bin: xh        }
+    - { crate: zoxide,    bin: zoxide    }
+  when: ansible_facts['os_family'] not in ['Darwin', 'Archlinux']
+
+# ── Linux binary installs (Debian + RHEL) ─────────────────────────────────────
+- name: Check if delta is installed (Linux)
+  shell: command -v delta
+  register: delta_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install delta (Linux)
+  shell: |
+    VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep '"tag_name"' | sed 's/.*"\(.*\)".*/\1/')
+    curl -Lo /tmp/delta.tar.gz "https://github.com/dandavison/delta/releases/latest/download/delta-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
+    tar -xzf /tmp/delta.tar.gz -C /tmp
+    mv "/tmp/delta-${VERSION}-x86_64-unknown-linux-musl/delta" /usr/local/bin/delta
+    chmod +x /usr/local/bin/delta
+    rm -rf /tmp/delta.tar.gz "/tmp/delta-${VERSION}-x86_64-unknown-linux-musl"
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and delta_check.rc != 0
+
+- name: Install yq (Linux)
+  get_url:
+    url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+    dest: /usr/local/bin/yq
+    mode: "0755"
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Check if just is installed (Linux)
+  shell: command -v just
+  register: just_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install just (Linux)
+  shell: |
+    VERSION=$(curl -s https://api.github.com/repos/casey/just/releases/latest | grep '"tag_name"' | sed 's/.*"\(.*\)".*/\1/')
+    curl -Lo /tmp/just.tar.gz "https://github.com/casey/just/releases/latest/download/just-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
+    tar -xzf /tmp/just.tar.gz -C /usr/local/bin just
+    chmod +x /usr/local/bin/just
+    rm /tmp/just.tar.gz
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and just_check.rc != 0
+
+- name: Install kind (Linux)
+  get_url:
+    url: https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+    dest: /usr/local/bin/kind
+    mode: "0755"
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install kubectx (Linux)
+  get_url:
+    url: https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx
+    dest: /usr/local/bin/kubectx
+    mode: "0755"
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install kubens (Linux)
+  get_url:
+    url: https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens
+    dest: /usr/local/bin/kubens
+    mode: "0755"
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Check if lazydocker is installed (Linux)
+  shell: command -v lazydocker
+  register: lazydocker_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install lazydocker (Linux)
+  shell: |
+    VERSION=$(curl -s https://api.github.com/repos/jesseduffield/lazydocker/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/lazydocker.tar.gz "https://github.com/jesseduffield/lazydocker/releases/latest/download/lazydocker_${VERSION}_Linux_x86_64.tar.gz"
+    tar -xzf /tmp/lazydocker.tar.gz -C /usr/local/bin lazydocker
+    chmod +x /usr/local/bin/lazydocker
+    rm /tmp/lazydocker.tar.gz
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and lazydocker_check.rc != 0
+
+- name: Check if dive is installed (Linux)
+  shell: command -v dive
+  register: dive_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install dive (Linux)
+  shell: |
+    VERSION=$(curl -s https://api.github.com/repos/wagoodman/dive/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/dive.tar.gz "https://github.com/wagoodman/dive/releases/latest/download/dive_${VERSION}_linux_amd64.tar.gz"
+    tar -xzf /tmp/dive.tar.gz -C /usr/local/bin dive
+    chmod +x /usr/local/bin/dive
+    rm /tmp/dive.tar.gz
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and dive_check.rc != 0
+
+- name: Check if act is installed (Linux)
+  shell: command -v act
+  register: act_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install act (Linux)
+  shell: |
+    VERSION=$(curl -s https://api.github.com/repos/nektos/act/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/act.tar.gz "https://github.com/nektos/act/releases/latest/download/act_Linux_x86_64.tar.gz"
+    tar -xzf /tmp/act.tar.gz -C /usr/local/bin act
+    chmod +x /usr/local/bin/act
+    rm /tmp/act.tar.gz
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and act_check.rc != 0
+
+- name: Check if grpcurl is installed (Linux)
+  shell: command -v grpcurl
+  register: grpcurl_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install grpcurl (Linux)
+  shell: |
+    VERSION=$(curl -s https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/grpcurl.tar.gz "https://github.com/fullstorydev/grpcurl/releases/latest/download/grpcurl_${VERSION}_linux_x86_64.tar.gz"
+    tar -xzf /tmp/grpcurl.tar.gz -C /usr/local/bin grpcurl
+    chmod +x /usr/local/bin/grpcurl
+    rm /tmp/grpcurl.tar.gz
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and grpcurl_check.rc != 0
+
+- name: Check if websocat is installed (Linux)
+  shell: command -v websocat
+  register: websocat_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install websocat (Linux)
+  shell: |
+    curl -Lo /usr/local/bin/websocat "https://github.com/vi/websocat/releases/latest/download/websocat.x86_64-unknown-linux-musl"
+    chmod +x /usr/local/bin/websocat
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and websocat_check.rc != 0
+
+# ── Vault (Linux) ─────────────────────────────────────────────────────────────
+- name: Check if vault is installed (Linux)
+  shell: command -v vault
+  register: vault_check
+  failed_when: false
+  changed_when: false
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Install vault (Linux)
+  shell: |
+    VERSION=$(curl -s https://api.releases.hashicorp.com/v1/releases/vault/latest | grep '"version"' | head -1 | sed 's/.*"\(.*\)".*/\1/')
+    curl -Lo /tmp/vault.zip "https://releases.hashicorp.com/vault/${VERSION}/vault_${VERSION}_linux_amd64.zip"
+    unzip -o /tmp/vault.zip vault -d /usr/local/bin/
+    chmod +x /usr/local/bin/vault
+    rm /tmp/vault.zip
+  become: true
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and vault_check.rc != 0
+
+# ── Google Cloud SDK (Linux) ──────────────────────────────────────────────────
+- name: Add Google Cloud apt key (Debian/Ubuntu)
+  shell: |
+    curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+  args:
+    creates: /usr/share/keyrings/cloud.google.gpg
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add Google Cloud apt repo (Debian/Ubuntu)
+  deb822_repository:
+    name: google-cloud-sdk
+    types: deb
+    uris: https://packages.cloud.google.com/apt
+    suites: cloud-sdk
+    components: main
+    signed_by: /usr/share/keyrings/cloud.google.gpg
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install Google Cloud SDK (Debian/Ubuntu)
+  apt:
+    name: google-cloud-cli
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add Google Cloud dnf repo (Fedora/RHEL)
+  copy:
+    dest: /etc/yum.repos.d/google-cloud-sdk.repo
+    content: |
+      [google-cloud-cli]
+      name=Google Cloud CLI
+      baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el9-x86_64
+      enabled=1
+      gpgcheck=1
+      repo_gpgcheck=0
+      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+             https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install Google Cloud SDK (Fedora/RHEL)
+  dnf:
+    name: google-cloud-cli
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+# ── Azure CLI (Linux) ─────────────────────────────────────────────────────────
+- name: Add Microsoft apt key (Debian/Ubuntu)
+  shell: |
+    curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+  args:
+    creates: /usr/share/keyrings/microsoft.gpg
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add Azure CLI apt repo (Debian/Ubuntu)
+  deb822_repository:
+    name: azure-cli
+    types: deb
+    uris: https://packages.microsoft.com/repos/azure-cli/
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: main
+    signed_by: /usr/share/keyrings/microsoft.gpg
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install Azure CLI (Debian/Ubuntu)
+  apt:
+    name: azure-cli
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add Azure CLI dnf repo (Fedora/RHEL)
+  shell: |
+    rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    dnf install -y https://packages.microsoft.com/config/rhel/9.0/packages-microsoft-prod.rpm
+  args:
+    creates: /etc/yum.repos.d/packages-microsoft-com-prod.repo
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install Azure CLI (Fedora/RHEL)
+  dnf:
+    name: azure-cli
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+# ── Cross-platform: Python-based tools via uv ─────────────────────────────────
+- name: Install pre-commit via uv
+  shell: uv tool install pre-commit
+  args:
+    creates: "{{ home_dir }}/.local/bin/pre-commit"
+  environment:
+    PATH: "{{ home_dir }}/.local/bin:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"

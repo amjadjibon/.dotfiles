@@ -59,17 +59,30 @@ Cross-platform playbook supporting macOS, Ubuntu/Debian, Fedora/RHEL, Arch Linux
 | `jj` | Jujutsu VCS (brew on macOS, GitHub release on Linux, `jujutsu` on Arch) |
 | `kubernetes` | kubectl + helm + k9s |
 | `devtools` | direnv, gh, mkcert, age, sops |
+| `extras` | Modern Unix (eza, bat, fd, ripgrep, fzf, delta, jq, yq, zoxide, …) + dev tools (just, shellcheck, act, grpcurl, websocat, pre-commit) + k8s extras (kubectx, kubens, kind, lazydocker, dive) + cloud CLIs (gcloud, azure-cli, vault) |
 
 ```sh
-# First-time setup
+# First-time setup (via bootstrap script)
+curl -fsSL https://raw.githubusercontent.com/amjadjibon/.dotfiles/main/bootstrap.sh | bash
+
+# With extras
+bash bootstrap.sh --extras
+
+# Manual setup
 pip3 install ansible
 ansible-galaxy collection install -r ansible/requirements.yml
 
 # Run everything
 ansible-playbook -i ansible/inventory.ini ansible/setup.yml
 
+# Run everything including extras
+ansible-playbook -i ansible/inventory.ini ansible/setup.yml -e install_extras=true
+
 # Run a single component
 ansible-playbook -i ansible/inventory.ini ansible/setup.yml --tags neovim
+
+# Run only extras
+ansible-playbook -i ansible/inventory.ini ansible/setup.yml --tags extras -e install_extras=true
 ```
 
 ## Docker Tests
