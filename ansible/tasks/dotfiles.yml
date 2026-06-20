@@ -19,3 +19,16 @@
     dest: "{{ home_dir }}/.gitconfig"
     state: link
     force: true
+
+- name: Ensure ~/.config/jj directory exists
+  file:
+    path: "{{ home_dir }}/.config/jj"
+    state: directory
+    mode: "0755"
+
+- name: Symlink jj config.toml
+  file:
+    src: "{{ dotfiles_dir }}/jj/config.toml"
+    dest: "{{ home_dir }}/.config/jj/config.toml"
+    state: link
+    force: true

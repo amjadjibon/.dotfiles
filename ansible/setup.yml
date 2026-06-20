@@ -67,3 +67,7 @@
     - name: Modern Unix tools (optional)
       import_tasks: tasks/modern_unix.yml
       tags: modern-unix
+
+    - name: Jujutsu (jj)
+      import_tasks: tasks/jj.yml
+      tags: jj

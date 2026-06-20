@@ -10,6 +10,7 @@ This is a personal dotfiles repository managed manually (no stow or install scri
 |------|--------------------------|
 | `zsh/.zshrc` | `~/.zshrc` |
 | `tmux/tmux.conf` | `~/.tmux.conf` |
+| `jj/config.toml` | `~/.config/jj/config.toml` |
 
 ## Shell (`zsh/.zshrc`)
 
@@ -30,6 +31,13 @@ This is a personal dotfiles repository managed manually (no stow or install scri
 - Split bindings: `-` for horizontal split, `_` for vertical split.
 - Theme: **catppuccin/tmux**.
 
+## Jujutsu VCS (`jj/config.toml`)
+
+- User identity: Amjad Hossain / amjad.jibon@gmail.com
+- Default command: `jj log`
+- Aliases: `l` (recent log), `ll` (full log), `s` (status), `d` (diff)
+- Auto-creates local bookmarks when fetching from git remotes.
+
 ## Ansible Playbook
 
 Cross-platform playbook supporting macOS, Ubuntu/Debian, Fedora/RHEL, Arch Linux, and Docker.
@@ -45,7 +53,8 @@ Cross-platform playbook supporting macOS, Ubuntu/Debian, Fedora/RHEL, Arch Linux
 | `python` | Miniforge (conda) |
 | `rust` | rustup + clippy, rustfmt, rust-analyzer |
 | `node` | NVM + Node LTS |
-| `dotfiles` | Symlinks `zsh/.zshrc` and `tmux/tmux.conf` |
+| `dotfiles` | Symlinks `zsh/.zshrc`, `tmux/tmux.conf`, and `jj/config.toml` |
+| `jj` | Jujutsu VCS (brew on macOS, GitHub release on Linux, `jujutsu` on Arch) |
 
 ```sh
 # First-time setup

@@ -1,0 +1,20 @@
+#:schema https://docs.jj-vcs.dev/latest/config-schema.json
+
+[user]
+name = "Amjad Hossain"
+email = "amjad.jibon@gmail.com"
+
+[ui]
+default-command = "log"
+diff-editor = ":builtin"
+merge-editor = ":builtin"
+
+[git]
+auto-local-bookmark = true
+push-bookmark-prefix = "push-"
+
+[aliases]
+l = ["log", "-r", "..@", "--no-pager"]
+ll = ["log", "--no-pager"]
+s = ["status"]
+d = ["diff"]

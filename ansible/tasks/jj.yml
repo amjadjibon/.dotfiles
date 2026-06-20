@@ -1,0 +1,55 @@
+---
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Install jj (macOS)
+  community.general.homebrew:
+    name: jj
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# ── Debian / Ubuntu ───────────────────────────────────────────────────────────
+- name: Check if jj is installed (Debian/Ubuntu)
+  stat:
+    path: /usr/local/bin/jj
+  register: jj_stat
+  when: ansible_os_family == 'Debian'
+
+- name: Install jj (Debian/Ubuntu)
+  shell: |
+    JJ_VERSION=$(curl -s "https://api.github.com/repos/jj-vcs/jj/releases/latest" | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/jj.tar.gz "https://github.com/jj-vcs/jj/releases/latest/download/jj-v${JJ_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+    tar -C /usr/local/bin -xzf /tmp/jj.tar.gz jj
+    chmod +x /usr/local/bin/jj
+    rm /tmp/jj.tar.gz
+  args:
+    creates: /usr/local/bin/jj
+  become: true
+  when: ansible_os_family == 'Debian' and not jj_stat.stat.exists
+
+# ── Fedora / RHEL ─────────────────────────────────────────────────────────────
+- name: Check if jj is installed (Fedora/RHEL)
+  stat:
+    path: /usr/local/bin/jj
+  register: jj_stat_rhel
+  when: ansible_os_family == 'RedHat'
+
+- name: Install jj (Fedora/RHEL)
+  shell: |
+    JJ_VERSION=$(curl -s "https://api.github.com/repos/jj-vcs/jj/releases/latest" | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/jj.tar.gz "https://github.com/jj-vcs/jj/releases/latest/download/jj-v${JJ_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+    tar -C /usr/local/bin -xzf /tmp/jj.tar.gz jj
+    chmod +x /usr/local/bin/jj
+    rm /tmp/jj.tar.gz
+  args:
+    creates: /usr/local/bin/jj
+  become: true
+  when: ansible_os_family == 'RedHat' and not jj_stat_rhel.stat.exists
+
+# ── Arch Linux ────────────────────────────────────────────────────────────────
+- name: Install jj (Arch)
+  community.general.pacman:
+    name: jujutsu
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'
