@@ -1,33 +1,48 @@
 ---
-- name: Check if claude-code is installed
-  stat:
-    path: "{{ home_dir }}/.claude/local/claude"
-  register: claude_stat
+- name: Check if claude is installed
+  shell: |
+    export PATH="{{ home_dir }}/.claude/local:{{ home_dir }}/.local/bin:$PATH"
+    command -v claude
+  register: claude_check
+  failed_when: false
+  changed_when: false
+  args:
+    executable: /bin/bash
 
 - name: Install claude-code via official installer
   shell: curl -fsSL https://claude.ai/install.sh | bash
   args:
     executable: /bin/bash
-  when: not claude_stat.stat.exists
+  when: claude_check.rc != 0
 
 - name: Check if codex is installed
-  stat:
-    path: "{{ home_dir }}/.codex/bin/codex"
-  register: codex_stat
+  shell: |
+    export PATH="{{ home_dir }}/.local/bin:{{ home_dir }}/.codex/bin:$PATH"
+    command -v codex
+  register: codex_check
+  failed_when: false
+  changed_when: false
+  args:
+    executable: /bin/bash
 
 - name: Install codex via official installer
   shell: curl -fsSL https://chatgpt.com/codex/install.sh | sh
   args:
     executable: /bin/sh
-  when: not codex_stat.stat.exists
+  when: codex_check.rc != 0
 
 - name: Check if opencode is installed
-  stat:
-    path: "{{ home_dir }}/.local/bin/opencode"
-  register: opencode_stat
+  shell: |
+    export PATH="{{ home_dir }}/.local/bin:$PATH"
+    command -v opencode
+  register: opencode_check
+  failed_when: false
+  changed_when: false
+  args:
+    executable: /bin/bash
 
 - name: Install opencode via official installer
   shell: curl -fsSL https://opencode.ai/install | bash
   args:
     executable: /bin/bash
-  when: not opencode_stat.stat.exists
+  when: opencode_check.rc != 0

@@ -10,9 +10,10 @@
 
 # ── Debian / Ubuntu ───────────────────────────────────────────────────────────
 - name: Check if jj is installed (Debian/Ubuntu)
-  stat:
-    path: /usr/local/bin/jj
-  register: jj_stat
+  shell: command -v jj
+  register: jj_check
+  failed_when: false
+  changed_when: false
   when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install jj (Debian/Ubuntu)
@@ -22,16 +23,15 @@
     tar -C /usr/local/bin -xzf /tmp/jj.tar.gz jj
     chmod +x /usr/local/bin/jj
     rm /tmp/jj.tar.gz
-  args:
-    creates: /usr/local/bin/jj
   become: true
-  when: ansible_facts['os_family'] == 'Debian' and not jj_stat.stat.exists
+  when: ansible_facts['os_family'] == 'Debian' and jj_check.rc != 0
 
 # ── Fedora / RHEL ─────────────────────────────────────────────────────────────
 - name: Check if jj is installed (Fedora/RHEL)
-  stat:
-    path: /usr/local/bin/jj
-  register: jj_stat_rhel
+  shell: command -v jj
+  register: jj_check_rhel
+  failed_when: false
+  changed_when: false
   when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install jj (Fedora/RHEL)
@@ -41,10 +41,8 @@
     tar -C /usr/local/bin -xzf /tmp/jj.tar.gz jj
     chmod +x /usr/local/bin/jj
     rm /tmp/jj.tar.gz
-  args:
-    creates: /usr/local/bin/jj
   become: true
-  when: ansible_facts['os_family'] == 'RedHat' and not jj_stat_rhel.stat.exists
+  when: ansible_facts['os_family'] == 'RedHat' and jj_check_rhel.rc != 0
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install jj (Arch)
