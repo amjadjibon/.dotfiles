@@ -11,6 +11,7 @@ This is a personal dotfiles repository managed manually (no stow or install scri
 | `zsh/.zshrc` | `~/.zshrc` |
 | `tmux/tmux.conf` | `~/.tmux.conf` |
 | `jj/config.toml` | `~/.config/jj/config.toml` |
+| `git/.gitignore` | `~/.gitignore` |
 
 ## Shell (`zsh/.zshrc`)
 
