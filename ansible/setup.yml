@@ -87,3 +87,11 @@
     - name: AI CLI tools
       import_tasks: tasks/aicli.yml
       tags: aicli
+
+    - name: Kubernetes (kubectl + helm + k9s)
+      import_tasks: tasks/kubernetes.yml
+      tags: kubernetes
+
+    - name: Dev tools (direnv, gh, mkcert, age, sops)
+      import_tasks: tasks/devtools.yml
+      tags: devtools

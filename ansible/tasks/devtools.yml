@@ -1,0 +1,130 @@
+---
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Install devtools (macOS)
+  community.general.homebrew:
+    name:
+      - direnv
+      - gh
+      - mkcert
+      - age
+      - sops
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# ── Debian / Ubuntu ───────────────────────────────────────────────────────────
+- name: Add GitHub CLI GPG key (Debian/Ubuntu)
+  shell: |
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/githubcli-archive-keyring.gpg
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Add GitHub CLI apt repository (Debian/Ubuntu)
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }} signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    state: present
+    filename: github-cli
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Install apt-based devtools (Debian/Ubuntu)
+  apt:
+    name:
+      - direnv
+      - gh
+      - age
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Check if mkcert is installed (Debian/Ubuntu)
+  stat:
+    path: /usr/local/bin/mkcert
+  register: mkcert_stat
+  when: ansible_os_family == 'Debian'
+
+- name: Install mkcert (Debian/Ubuntu)
+  shell: |
+    MKCERT_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /usr/local/bin/mkcert "https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v${MKCERT_VERSION}-linux-amd64"
+    chmod +x /usr/local/bin/mkcert
+  become: true
+  when: ansible_os_family == 'Debian' and not mkcert_stat.stat.exists
+
+- name: Check if sops is installed (Debian/Ubuntu)
+  stat:
+    path: /usr/local/bin/sops
+  register: sops_stat
+  when: ansible_os_family == 'Debian'
+
+- name: Install sops (Debian/Ubuntu)
+  shell: |
+    SOPS_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /usr/local/bin/sops "https://github.com/getsops/sops/releases/latest/download/sops-v${SOPS_VERSION}.linux.amd64"
+    chmod +x /usr/local/bin/sops
+  become: true
+  when: ansible_os_family == 'Debian' and not sops_stat.stat.exists
+
+# ── Fedora / RHEL ─────────────────────────────────────────────────────────────
+- name: Add GitHub CLI dnf repository (Fedora/RHEL)
+  shell: |
+    dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+  args:
+    creates: /etc/yum.repos.d/gh-cli.repo
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install dnf-based devtools (Fedora/RHEL)
+  dnf:
+    name:
+      - direnv
+      - gh
+      - age
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Check if mkcert is installed (Fedora/RHEL)
+  stat:
+    path: /usr/local/bin/mkcert
+  register: mkcert_stat_rhel
+  when: ansible_os_family == 'RedHat'
+
+- name: Install mkcert (Fedora/RHEL)
+  shell: |
+    MKCERT_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /usr/local/bin/mkcert "https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v${MKCERT_VERSION}-linux-amd64"
+    chmod +x /usr/local/bin/mkcert
+  become: true
+  when: ansible_os_family == 'RedHat' and not mkcert_stat_rhel.stat.exists
+
+- name: Check if sops is installed (Fedora/RHEL)
+  stat:
+    path: /usr/local/bin/sops
+  register: sops_stat_rhel
+  when: ansible_os_family == 'RedHat'
+
+- name: Install sops (Fedora/RHEL)
+  shell: |
+    SOPS_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /usr/local/bin/sops "https://github.com/getsops/sops/releases/latest/download/sops-v${SOPS_VERSION}.linux.amd64"
+    chmod +x /usr/local/bin/sops
+  become: true
+  when: ansible_os_family == 'RedHat' and not sops_stat_rhel.stat.exists
+
+# ── Arch Linux ────────────────────────────────────────────────────────────────
+- name: Install devtools (Arch)
+  community.general.pacman:
+    name:
+      - direnv
+      - github-cli
+      - mkcert
+      - age
+      - sops
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'

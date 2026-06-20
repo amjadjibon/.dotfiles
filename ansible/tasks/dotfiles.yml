@@ -27,6 +27,19 @@
     state: link
     force: true
 
+- name: Ensure ~/.ssh directory exists
+  file:
+    path: "{{ home_dir }}/.ssh"
+    state: directory
+    mode: "0700"
+
+- name: Symlink SSH config
+  file:
+    src: "{{ dotfiles_dir }}/ssh/config"
+    dest: "{{ home_dir }}/.ssh/config"
+    state: link
+    force: true
+
 - name: Ensure ~/.config/jj directory exists
   file:
     path: "{{ home_dir }}/.config/jj"

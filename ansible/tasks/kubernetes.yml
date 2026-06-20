@@ -1,0 +1,64 @@
+---
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Install kubectl, helm, k9s (macOS)
+  community.general.homebrew:
+    name:
+      - kubectl
+      - helm
+      - k9s
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+  when: ansible_os_family == 'Darwin'
+
+# ── Linux (official binary — always latest stable) ────────────────────────────
+- name: Set kubectl arch (Linux)
+  set_fact:
+    kubectl_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+  when: ansible_os_family != 'Darwin'
+
+- name: Check if kubectl is installed (Linux)
+  stat:
+    path: /usr/local/bin/kubectl
+  register: kubectl_stat
+  when: ansible_os_family != 'Darwin'
+
+- name: Install kubectl (Linux)
+  shell: |
+    KUBECTL_VERSION=$(curl -sL https://dl.k8s.io/release/stable.txt)
+    curl -Lo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/{{ kubectl_arch }}/kubectl"
+    chmod +x /usr/local/bin/kubectl
+  become: true
+  when: ansible_os_family not in ['Darwin', 'Archlinux'] and not kubectl_stat.stat.exists
+
+- name: Install helm (Linux)
+  shell: curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+  become: true
+  when: ansible_os_family not in ['Darwin', 'Archlinux']
+
+- name: Check if k9s is installed (Linux)
+  stat:
+    path: /usr/local/bin/k9s
+  register: k9s_stat
+  when: ansible_os_family not in ['Darwin', 'Archlinux']
+
+- name: Install k9s (Linux)
+  shell: |
+    curl -Lo /tmp/k9s.tar.gz "https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_{{ kubectl_arch }}.tar.gz"
+    tar -C /usr/local/bin -xzf /tmp/k9s.tar.gz k9s
+    rm /tmp/k9s.tar.gz
+  become: true
+  when: ansible_os_family not in ['Darwin', 'Archlinux'] and not k9s_stat.stat.exists
+
+# ── Arch Linux ────────────────────────────────────────────────────────────────
+- name: Install kubectl, helm, k9s (Arch)
+  community.general.pacman:
+    name:
+      - kubectl
+      - helm
+      - k9s
+    state: present
+  become: true
+  when: ansible_os_family == 'Archlinux'

@@ -1,0 +1,16 @@
+Host *
+  # Keep connections alive
+  ServerAliveInterval 60
+  ServerAliveCountMax 3
+
+  # Reuse existing connections
+  ControlMaster auto
+  ControlPath ~/.ssh/cm-%r@%h:%p
+  ControlPersist 10m
+
+  # Add keys to agent automatically
+  AddKeysToAgent yes
+
+  # Prefer ed25519, fall back to rsa
+  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/id_rsa

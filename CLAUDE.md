@@ -12,6 +12,7 @@ This is a personal dotfiles repository managed manually (no stow or install scri
 | `tmux/tmux.conf` | `~/.tmux.conf` |
 | `jj/config.toml` | `~/.config/jj/config.toml` |
 | `git/.gitignore` | `~/.gitignore` |
+| `ssh/config` | `~/.ssh/config` |
 
 ## Shell (`zsh/.zshrc`)
 
@@ -56,6 +57,8 @@ Cross-platform playbook supporting macOS, Ubuntu/Debian, Fedora/RHEL, Arch Linux
 | `node` | NVM + Node LTS |
 | `dotfiles` | Symlinks `zsh/.zshrc`, `tmux/tmux.conf`, and `jj/config.toml` |
 | `jj` | Jujutsu VCS (brew on macOS, GitHub release on Linux, `jujutsu` on Arch) |
+| `kubernetes` | kubectl + helm + k9s |
+| `devtools` | direnv, gh, mkcert, age, sops |
 
 ```sh
 # First-time setup
