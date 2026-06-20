@@ -71,3 +71,7 @@
     - name: Jujutsu (jj)
       import_tasks: tasks/jj.yml
       tags: jj
+
+    - name: AWS CLI
+      import_tasks: tasks/awscli.yml
+      tags: awscli
