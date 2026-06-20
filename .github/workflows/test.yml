@@ -10,23 +10,23 @@ jobs:
   test:
     name: Ubuntu (GitHub runner)
     runs-on: ubuntu-latest
+    env:
+      DOTFILES_DIR: ${{ github.workspace }}
+      SKIP_CLONE: "true"
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Install Ansible
-        run: |
-          pip3 install --break-system-packages ansible
-          ansible-galaxy collection install -r ansible/requirements.yml
-
-      - name: Run playbook
+      - name: Run bootstrap
         run: >
-          ansible-playbook -i ansible/inventory.ini ansible/setup.yml
+          bash bootstrap.sh
           --extra-vars headless=true
           -e ansible_python_interpreter=/usr/bin/python3
 
       - name: Idempotency check (second run)
         run: |
-          output=$(ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
+          output=$(bash bootstrap.sh \
             --extra-vars headless=true \
             -e ansible_python_interpreter=/usr/bin/python3 2>&1)
           echo "$output"

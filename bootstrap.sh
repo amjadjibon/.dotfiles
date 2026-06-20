@@ -2,7 +2,8 @@
 set -euo pipefail
 
 DOTFILES_REPO="https://github.com/amjadjibon/.dotfiles.git"
-DOTFILES_DIR="$HOME/.dotfiles"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+SKIP_CLONE="${SKIP_CLONE:-false}"
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 green() { printf '\033[0;32m%s\033[0m\n' "$*"; }
@@ -82,7 +83,9 @@ if ! command -v git &>/dev/null; then
 fi
 
 # ── Clone dotfiles ─────────────────────────────────────────────────────────────
-if [[ ! -d "$DOTFILES_DIR" ]]; then
+if [[ "$SKIP_CLONE" == "true" ]]; then
+  green "==> Skipping clone, using: $DOTFILES_DIR"
+elif [[ ! -d "$DOTFILES_DIR" ]]; then
   yellow "==> Cloning dotfiles to $DOTFILES_DIR..."
   git clone --recurse-submodules "$DOTFILES_REPO" "$DOTFILES_DIR"
 else
