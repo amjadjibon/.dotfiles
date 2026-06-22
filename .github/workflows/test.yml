@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  ubuntu:
     name: Ubuntu (GitHub runner)
     runs-on: ubuntu-latest
     env:
@@ -18,8 +18,67 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Run bootstrap
-        run: >
-          bash bootstrap.sh
-          --extra-vars headless=true
-          -e ansible_python_interpreter=/usr/bin/python3
+      - name: Install Ansible
+        run: pip3 install --user ansible && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install Galaxy requirements
+        run: ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Run playbook
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
+            --extra-vars headless=true \
+            -e ansible_python_interpreter=/usr/bin/python3
+
+  arch:
+    name: Arch Linux (Docker)
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    env:
+      DOTFILES_DIR: ${{ github.workspace }}
+      SKIP_CLONE: "true"
+    steps:
+      - name: Install base dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm python python-pip git curl sudo ca-certificates
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ansible
+        run: pip install --break-system-packages ansible
+
+      - name: Install Galaxy requirements
+        run: ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Run playbook
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
+            --extra-vars headless=true \
+            -e ansible_python_interpreter=/usr/bin/python3
+
+  macos:
+    name: macOS (GitHub runner)
+    runs-on: macos-latest
+    env:
+      DOTFILES_DIR: ${{ github.workspace }}
+      SKIP_CLONE: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ansible
+        run: pip3 install --user ansible && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install Galaxy requirements
+        run: ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Run playbook
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
+            --extra-vars headless=true \
+            -e ansible_python_interpreter=/usr/bin/python3
