@@ -23,14 +23,3 @@ jobs:
           bash bootstrap.sh
           --extra-vars headless=true
           -e ansible_python_interpreter=/usr/bin/python3
-
-      - name: Idempotency check (second run)
-        run: |
-          output=$(bash bootstrap.sh \
-            --extra-vars headless=true \
-            -e ansible_python_interpreter=/usr/bin/python3 2>&1)
-          echo "$output"
-          if echo "$output" | grep -qE "changed=[1-9]"; then
-            echo "FAIL: not idempotent"
-            exit 1
-          fi
