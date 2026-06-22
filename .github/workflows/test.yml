@@ -60,6 +60,36 @@ jobs:
             --extra-vars headless=true \
             -e ansible_python_interpreter=/usr/bin/python3
 
+  fedora:
+    name: Fedora (Docker)
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:41
+    env:
+      DOTFILES_DIR: ${{ github.workspace }}
+      SKIP_CLONE: "true"
+    steps:
+      - name: Install base dependencies
+        run: |
+          dnf install -y python3 python3-pip git curl sudo ca-certificates
+          dnf clean all
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ansible
+        run: pip3 install ansible
+
+      - name: Install Galaxy requirements
+        run: ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Run playbook
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/setup.yml \
+            --extra-vars headless=true \
+            -e ansible_python_interpreter=/usr/bin/python3
+
   macos:
     name: macOS (GitHub runner)
     runs-on: macos-latest
