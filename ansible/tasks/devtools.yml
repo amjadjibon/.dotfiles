@@ -54,7 +54,7 @@
 
 - name: Install mkcert (Debian/Ubuntu)
   shell: |
-    MKCERT_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    MKCERT_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /usr/local/bin/mkcert "https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v${MKCERT_VERSION}-linux-amd64"
     chmod +x /usr/local/bin/mkcert
   become: true
@@ -68,7 +68,7 @@
 
 - name: Install sops (Debian/Ubuntu)
   shell: |
-    SOPS_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    SOPS_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /usr/local/bin/sops "https://github.com/getsops/sops/releases/latest/download/sops-v${SOPS_VERSION}.linux.amd64"
     chmod +x /usr/local/bin/sops
   become: true
@@ -101,7 +101,7 @@
 
 - name: Install mkcert (Fedora/RHEL)
   shell: |
-    MKCERT_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    MKCERT_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /usr/local/bin/mkcert "https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v${MKCERT_VERSION}-linux-amd64"
     chmod +x /usr/local/bin/mkcert
   become: true
@@ -115,7 +115,7 @@
 
 - name: Install sops (Fedora/RHEL)
   shell: |
-    SOPS_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    SOPS_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /usr/local/bin/sops "https://github.com/getsops/sops/releases/latest/download/sops-v${SOPS_VERSION}.linux.amd64"
     chmod +x /usr/local/bin/sops
   become: true

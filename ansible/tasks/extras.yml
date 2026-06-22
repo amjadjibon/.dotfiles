@@ -187,7 +187,7 @@
 
 - name: Install delta (Linux)
   shell: |
-    VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep '"tag_name"' | sed 's/.*"\(.*\)".*/\1/')
+    VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | jq -r '.tag_name')
     curl -Lo /tmp/delta.tar.gz "https://github.com/dandavison/delta/releases/latest/download/delta-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
     tar -xzf /tmp/delta.tar.gz -C /tmp
     mv "/tmp/delta-${VERSION}-x86_64-unknown-linux-musl/delta" /usr/local/bin/delta
@@ -213,7 +213,7 @@
 
 - name: Install just (Linux)
   shell: |
-    VERSION=$(curl -s https://api.github.com/repos/casey/just/releases/latest | grep '"tag_name"' | sed 's/.*"\(.*\)".*/\1/')
+    VERSION=$(curl -s https://api.github.com/repos/casey/just/releases/latest | jq -r '.tag_name')
     curl -Lo /tmp/just.tar.gz "https://github.com/casey/just/releases/latest/download/just-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
     tar -xzf /tmp/just.tar.gz -C /usr/local/bin just
     chmod +x /usr/local/bin/just
@@ -254,7 +254,7 @@
 
 - name: Install lazydocker (Linux)
   shell: |
-    VERSION=$(curl -s https://api.github.com/repos/jesseduffield/lazydocker/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    VERSION=$(curl -s https://api.github.com/repos/jesseduffield/lazydocker/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /tmp/lazydocker.tar.gz "https://github.com/jesseduffield/lazydocker/releases/latest/download/lazydocker_${VERSION}_Linux_x86_64.tar.gz"
     tar -xzf /tmp/lazydocker.tar.gz -C /usr/local/bin lazydocker
     chmod +x /usr/local/bin/lazydocker
@@ -271,7 +271,7 @@
 
 - name: Install dive (Linux)
   shell: |
-    VERSION=$(curl -s https://api.github.com/repos/wagoodman/dive/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    VERSION=$(curl -s https://api.github.com/repos/wagoodman/dive/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /tmp/dive.tar.gz "https://github.com/wagoodman/dive/releases/latest/download/dive_${VERSION}_linux_amd64.tar.gz"
     tar -xzf /tmp/dive.tar.gz -C /usr/local/bin dive
     chmod +x /usr/local/bin/dive
@@ -288,7 +288,7 @@
 
 - name: Install act (Linux)
   shell: |
-    VERSION=$(curl -s https://api.github.com/repos/nektos/act/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    VERSION=$(curl -s https://api.github.com/repos/nektos/act/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /tmp/act.tar.gz "https://github.com/nektos/act/releases/latest/download/act_Linux_x86_64.tar.gz"
     tar -xzf /tmp/act.tar.gz -C /usr/local/bin act
     chmod +x /usr/local/bin/act
@@ -305,7 +305,7 @@
 
 - name: Install grpcurl (Linux)
   shell: |
-    VERSION=$(curl -s https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    VERSION=$(curl -s https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | jq -r '.tag_name | ltrimstr("v")')
     curl -Lo /tmp/grpcurl.tar.gz "https://github.com/fullstorydev/grpcurl/releases/latest/download/grpcurl_${VERSION}_linux_x86_64.tar.gz"
     tar -xzf /tmp/grpcurl.tar.gz -C /usr/local/bin grpcurl
     chmod +x /usr/local/bin/grpcurl
