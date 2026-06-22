@@ -107,14 +107,12 @@
       - ripgrep
       - fd-find
       - fzf
-      - lazygit
       - tree
       - jq
       - htop
       - gcc
       - make
       - unzip
-      - git-delta
     state: present
   become: true
   when: ansible_facts['os_family'] == 'RedHat'
@@ -122,7 +120,7 @@
 # fastfetch is not in dnf — install from GitHub release
 - name: Check if fastfetch is installed (Fedora/RHEL)
   stat:
-    path: /usr/bin/fastfetch
+    path: /usr/local/bin/fastfetch
   register: fastfetch_stat_rhel
   when: ansible_facts['os_family'] == 'RedHat'
 
@@ -132,9 +130,46 @@
     rpm -i /tmp/fastfetch.rpm
     rm /tmp/fastfetch.rpm
   args:
-    creates: /usr/bin/fastfetch
+    creates: /usr/local/bin/fastfetch
   become: true
   when: ansible_facts['os_family'] == 'RedHat' and not fastfetch_stat_rhel.stat.exists
+
+# lazygit is not in dnf — install from GitHub release
+- name: Check if lazygit is installed (Fedora/RHEL)
+  stat:
+    path: /usr/local/bin/lazygit
+  register: lazygit_stat_rhel
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install lazygit (Fedora/RHEL)
+  shell: |
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+    tar -C /usr/local/bin -xzf /tmp/lazygit.tar.gz lazygit
+    rm /tmp/lazygit.tar.gz
+  args:
+    creates: /usr/local/bin/lazygit
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat' and not lazygit_stat_rhel.stat.exists
+
+# git-delta is not in dnf — install from GitHub release
+- name: Check if git-delta is installed (Fedora/RHEL)
+  stat:
+    path: /usr/local/bin/delta
+  register: delta_stat_rhel
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install git-delta (Fedora/RHEL)
+  shell: |
+    DELTA_VERSION=$(curl -s "https://api.github.com/repos/dandavison/delta/releases/latest" | grep '"tag_name"' | sed 's/.*"\(.*\)".*/\1/')
+    curl -Lo /tmp/delta.tar.gz "https://github.com/dandavison/delta/releases/latest/download/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+    tar -C /tmp -xzf /tmp/delta.tar.gz
+    mv /tmp/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl/delta /usr/local/bin/delta
+    rm -rf /tmp/delta.tar.gz /tmp/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl
+  args:
+    creates: /usr/local/bin/delta
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat' and not delta_stat_rhel.stat.exists
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install core packages (Arch)

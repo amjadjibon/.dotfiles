@@ -102,7 +102,7 @@ jobs:
           submodules: recursive
 
       - name: Install Ansible
-        run: pip3 install --user ansible && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        run: brew install ansible
 
       - name: Install Galaxy requirements
         run: ansible-galaxy collection install -r ansible/requirements.yml
