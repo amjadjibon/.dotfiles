@@ -38,20 +38,28 @@
   when: ansible_facts['os_family'] == 'Debian'
 
 # ── Fedora / RHEL ─────────────────────────────────────────────────────────────
-- name: Add HashiCorp dnf repository (Fedora/RHEL)
-  shell: |
-    dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
-  args:
-    creates: /etc/yum.repos.d/hashicorp.repo
-  become: true
+- name: Set Terraform arch (Fedora/RHEL)
+  set_fact:
+    tf_linux_arch: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'amd64' }}"
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Check if Terraform is installed (Fedora/RHEL)
+  stat:
+    path: /usr/local/bin/terraform
+  register: terraform_stat_rhel
   when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Install Terraform (Fedora/RHEL)
-  dnf:
-    name: terraform
-    state: present
+  shell: |
+    VERSION=$(curl -s https://api.github.com/repos/hashicorp/terraform/releases/latest | jq -r '.tag_name | ltrimstr("v")')
+    curl -Lo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${VERSION}/terraform_${VERSION}_linux_{{ tf_linux_arch }}.zip"
+    unzip -o /tmp/terraform.zip -d /usr/local/bin terraform
+    chmod +x /usr/local/bin/terraform
+    rm /tmp/terraform.zip
+  args:
+    creates: /usr/local/bin/terraform
   become: true
-  when: ansible_facts['os_family'] == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat' and not terraform_stat_rhel.stat.exists
 
 # ── Arch Linux ────────────────────────────────────────────────────────────────
 - name: Install Terraform (Arch)

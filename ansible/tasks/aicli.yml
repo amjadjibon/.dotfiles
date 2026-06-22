@@ -1,4 +1,17 @@
 ---
+# ── macOS ─────────────────────────────────────────────────────────────────────
+- name: Install AI CLI tools (macOS)
+  community.general.homebrew:
+    name:
+      - anthropics/tap/claude-code
+      - openai/tap/codex
+      - sst/tap/opencode
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: ansible_facts['os_family'] == 'Darwin'
+
+# ── Linux ─────────────────────────────────────────────────────────────────────
 - name: Check if claude is installed
   shell: |
     export PATH="{{ home_dir }}/.claude/local:{{ home_dir }}/.local/bin:$PATH"
@@ -8,12 +21,13 @@
   changed_when: false
   args:
     executable: /bin/bash
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Install claude-code via official installer
   shell: curl -fsSL https://claude.ai/install.sh | bash
   args:
     executable: /bin/bash
-  when: claude_check.rc != 0
+  when: ansible_facts['os_family'] != 'Darwin' and claude_check.rc != 0
 
 - name: Check if codex is installed
   shell: |
@@ -24,12 +38,13 @@
   changed_when: false
   args:
     executable: /bin/bash
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Install codex via official installer
   shell: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh
   args:
     executable: /bin/sh
-  when: codex_check.rc != 0
+  when: ansible_facts['os_family'] != 'Darwin' and codex_check.rc != 0
 
 - name: Check if opencode is installed
   shell: |
@@ -40,9 +55,10 @@
   changed_when: false
   args:
     executable: /bin/bash
+  when: ansible_facts['os_family'] != 'Darwin'
 
 - name: Install opencode via official installer
   shell: curl -fsSL https://opencode.ai/install | bash
   args:
     executable: /bin/bash
-  when: opencode_check.rc != 0
+  when: ansible_facts['os_family'] != 'Darwin' and opencode_check.rc != 0

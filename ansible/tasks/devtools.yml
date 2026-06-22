@@ -76,10 +76,10 @@
 
 # ── Fedora / RHEL ─────────────────────────────────────────────────────────────
 - name: Add GitHub CLI dnf repository (Fedora/RHEL)
-  shell: |
-    dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-  args:
-    creates: /etc/yum.repos.d/gh-cli.repo
+  get_url:
+    url: https://cli.github.com/packages/rpm/gh-cli.repo
+    dest: /etc/yum.repos.d/gh-cli.repo
+    mode: "0644"
   become: true
   when: ansible_facts['os_family'] == 'RedHat'
 

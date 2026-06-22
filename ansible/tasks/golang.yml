@@ -8,14 +8,6 @@
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
-# Fedora and Arch ship a recent enough Go via package manager
-- name: Install Go (Fedora/RHEL)
-  dnf:
-    name: golang
-    state: present
-  become: true
-  when: ansible_facts['os_family'] == 'RedHat'
-
 - name: Install Go (Arch)
   community.general.pacman:
     name: go
@@ -23,33 +15,34 @@
   become: true
   when: ansible_facts['os_family'] == 'Archlinux'
 
-# Ubuntu apt ships an outdated Go — download the official binary instead
-- name: Set Go download arch (Debian/Ubuntu)
+# Debian/Ubuntu and Fedora/RHEL both get the official golang.org binary
+# to avoid distro-packaged Go being outdated or carrying patches (e.g. GOSUMDB=off on Fedora)
+- name: Set Go download arch (Linux)
   set_fact:
     go_linux_arch: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'amd64' }}"
-  when: ansible_facts['os_family'] == 'Debian'
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
 
-- name: Check if Go is installed (Debian/Ubuntu)
+- name: Check if Go is installed (Linux)
   stat:
     path: /usr/local/go/bin/go
-  register: go_debian_stat
-  when: ansible_facts['os_family'] == 'Debian'
+  register: go_linux_stat
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
 
-- name: Get latest Go version (Debian/Ubuntu)
+- name: Get latest Go version (Linux)
   uri:
     url: https://go.dev/VERSION?m=text
     return_content: true
   register: go_latest_version
-  when: ansible_facts['os_family'] == 'Debian' and not go_debian_stat.stat.exists
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and not go_linux_stat.stat.exists
 
-- name: Download and install Go (Debian/Ubuntu)
+- name: Download and install Go (Linux)
   shell: |
     VERSION={{ go_latest_version.content.split('\n')[0] }}
     curl -fsSL "https://go.dev/dl/${VERSION}.linux-{{ go_linux_arch }}.tar.gz" | tar -C /usr/local -xzf -
   args:
     creates: /usr/local/go/bin/go
   become: true
-  when: ansible_facts['os_family'] == 'Debian' and not go_debian_stat.stat.exists
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat'] and not go_linux_stat.stat.exists
 
 # ── Workspace ─────────────────────────────────────────────────────────────────
 - name: Ensure Go workspace directories exist
@@ -70,8 +63,7 @@
   environment:
     PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"
-    GOTOOLCHAIN: auto
-    GONOSUMDB: "*"
+    GOTOOLCHAIN: local
 
 - name: Install delve (dlv)
   shell: go install github.com/go-delve/delve/cmd/dlv@latest
@@ -80,8 +72,7 @@
   environment:
     PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"
-    GOTOOLCHAIN: auto
-    GONOSUMDB: "*"
+    GOTOOLCHAIN: local
 
 - name: Install golangci-lint
   shell: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
@@ -90,8 +81,7 @@
   environment:
     PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"
-    GOTOOLCHAIN: auto
-    GONOSUMDB: "*"
+    GOTOOLCHAIN: local
 
 - name: Install gofumpt
   shell: go install mvdan.cc/gofumpt@latest
@@ -100,5 +90,4 @@
   environment:
     PATH: "{{ go_bin_dir }}:{{ ansible_facts['env']['PATH'] }}"
     GOPATH: "{{ home_dir }}/go"
-    GOTOOLCHAIN: auto
-    GONOSUMDB: "*"
+    GOTOOLCHAIN: local
