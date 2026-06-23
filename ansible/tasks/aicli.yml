@@ -1,12 +1,32 @@
 ---
 # ── macOS ─────────────────────────────────────────────────────────────────────
-- name: Install AI CLI tools (macOS)
-  community.general.homebrew:
-    name:
-      - anthropics/tap/claude-code
-      - openai/tap/codex
-      - sst/tap/opencode
+- name: Install claude-code cask (macOS)
+  community.general.homebrew_cask:
+    name: claude-code
     state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Tap sst/tap (macOS)
+  community.general.homebrew_tap:
+    name: sst/tap
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install opencode via brew (macOS)
+  community.general.homebrew:
+    name: sst/tap/opencode
+    state: present
+  environment:
+    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install codex via npm (macOS)
+  shell: npm install -g @openai/codex
+  args:
+    creates: /opt/homebrew/bin/codex
   environment:
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
