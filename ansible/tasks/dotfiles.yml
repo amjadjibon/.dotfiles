@@ -52,3 +52,16 @@
     dest: "{{ home_dir }}/.config/jj/config.toml"
     state: link
     force: true
+
+- name: Ensure ~/.config directory exists
+  file:
+    path: "{{ home_dir }}/.config"
+    state: directory
+    mode: "0755"
+
+- name: Symlink nvim config
+  file:
+    src: "{{ dotfiles_dir }}/nvim"
+    dest: "{{ home_dir }}/.config/nvim"
+    state: link
+    force: true

@@ -13,6 +13,7 @@ This is a personal dotfiles repository managed manually (no stow or install scri
 | `jj/config.toml` | `~/.config/jj/config.toml` |
 | `git/.gitignore` | `~/.gitignore` |
 | `ssh/config` | `~/.ssh/config` |
+| `nvim/` | `~/.config/nvim` |
 
 ## Shell (`zsh/.zshrc`)
 
