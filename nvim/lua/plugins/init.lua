@@ -4,24 +4,34 @@ return {
     cmd = "Copilot",
     event = "InsertEnter",
     opts = {
-      suggestion = { enabled = false },
+      suggestion = {
+        enabled = true,
+        auto_trigger = true,
+        keymap = {
+          accept = "<Tab>",
+          next = "<M-]>",
+          prev = "<M-[>",
+          dismiss = "<C-]>",
+        },
+      },
       panel = { enabled = false },
     },
   },
 
   {
-    "zbirenbaum/copilot-cmp",
-    dependencies = { "zbirenbaum/copilot.lua" },
-    config = function()
-      require("copilot_cmp").setup()
-    end,
-  },
-
-  {
     "hrsh7th/nvim-cmp",
-    dependencies = { "zbirenbaum/copilot-cmp" },
     opts = function(_, opts)
-      table.insert(opts.sources, 1, { name = "copilot", group_index = 1, priority = 100 })
+      local cmp = require "cmp"
+      opts.mapping["<Tab>"] = cmp.mapping(function(fallback)
+        local copilot = require "copilot.suggestion"
+        if copilot.is_visible() then
+          copilot.accept()
+        elseif cmp.visible() then
+          cmp.select_next_item()
+        else
+          fallback()
+        end
+      end, { "i", "s" })
       return opts
     end,
   },
