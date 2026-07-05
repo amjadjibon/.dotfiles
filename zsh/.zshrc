@@ -85,7 +85,22 @@ ENABLE_CORRECTION="true"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
 	git
-  zsh-autosuggestions
+	docker
+	docker-compose
+	kubectl
+	ansible
+	python
+	pip
+	node
+	npm
+	yarn
+	golang
+	rust
+	sudo
+	extract
+	command-not-found
+	zsh-autosuggestions
+	zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -230,4 +245,3 @@ export PATH="$WASMTIME_HOME/bin:$PATH"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
