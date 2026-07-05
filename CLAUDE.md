@@ -9,7 +9,7 @@ This is a personal dotfiles repository managed manually (no stow or install scri
 | File | Symlink/copy destination |
 |------|--------------------------|
 | `zsh/.zshrc` | `~/.zshrc` |
-| `tmux/tmux.conf` | `~/.tmux.conf` |
+| `tmux/tmux.conf` | `~/.config/tmux/tmux.conf` |
 | `jj/config.toml` | `~/.config/jj/config.toml` |
 | `git/.gitignore` | `~/.gitignore` |
 | `ssh/config` | `~/.ssh/config` |
@@ -108,5 +108,5 @@ source ~/.zshrc
 
 After editing `tmux/tmux.conf`, reload with:
 ```sh
-tmux source ~/.tmux.conf
+tmux source ~/.config/tmux/tmux.conf
 ```
