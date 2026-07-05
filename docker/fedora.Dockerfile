@@ -18,4 +18,4 @@ COPY . .
 
 RUN ansible-galaxy collection install -r ansible/requirements.yml
 
-CMD ["bash", "docker/test.sh"]
+CMD ["bash", "scripts/run-playbook.sh"]
