@@ -6,10 +6,16 @@
     state: link
     force: true
 
+- name: Ensure ~/.config/tmux directory exists
+  file:
+    path: "{{ home_dir }}/.config/tmux"
+    state: directory
+    mode: "0755"
+
 - name: Symlink tmux.conf
   file:
     src: "{{ dotfiles_dir }}/tmux/tmux.conf"
-    dest: "{{ home_dir }}/.tmux.conf"
+    dest: "{{ home_dir }}/.config/tmux/tmux.conf"
     state: link
     force: true
 
