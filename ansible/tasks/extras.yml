@@ -448,3 +448,15 @@
     creates: "{{ home_dir }}/.local/bin/pre-commit"
   environment:
     PATH: "{{ home_dir }}/.local/bin:/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
+
+# ── Cross-platform: Node-based tools via npm ──────────────────────────────────
+- name: Install inshellisense (IDE-style autocomplete for shells)
+  shell: |
+    export NVM_DIR="{{ home_dir }}/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    npm install -g @microsoft/inshellisense
+  args:
+    executable: /bin/bash
+    creates: "{{ home_dir }}/.nvm/versions/node"
+  environment:
+    NVM_DIR: "{{ home_dir }}/.nvm"
