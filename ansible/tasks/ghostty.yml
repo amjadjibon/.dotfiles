@@ -7,6 +7,13 @@
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
+- name: Enable Ghostty COPR (Fedora/RHEL)
+  community.general.copr:
+    name: pgdev/ghostty
+    state: enabled
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
 - name: Install Ghostty (Fedora/RHEL)
   dnf:
     name: ghostty
