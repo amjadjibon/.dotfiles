@@ -1,0 +1,13 @@
+font-family = "MesloLGS NF"
+font-size = 14
+theme = catppuccin-mocha
+
+window-padding-x = 10
+window-padding-y = 10
+cursor-style = block
+mouse-hide-while-typing = true
+confirm-close-surface = false
+macos-option-as-alt = true
+copy-on-select = true
+
+keybind = shift+enter=text:\n

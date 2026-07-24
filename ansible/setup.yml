@@ -40,6 +40,10 @@
       import_tasks: tasks/tmux.yml
       tags: tmux
 
+    - name: Ghostty
+      import_tasks: tasks/ghostty.yml
+      tags: ghostty
+
     - name: Nerd Fonts
       import_tasks: tasks/fonts.yml
       tags: fonts
