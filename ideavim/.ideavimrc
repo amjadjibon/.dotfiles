@@ -1,0 +1,133 @@
+" ~/.ideavimrc — IdeaVim configuration
+" Action list: :actionlist <pattern>   Reload: <leader>vr
+" Docs: https://jb.gg/h38q75
+
+" ============ Options ============
+let mapleader = " "
+
+set scrolloff=8
+set sidescrolloff=8
+set incsearch
+set hlsearch
+set ignorecase
+set smartcase
+set number
+set relativenumber
+set showmode
+set showcmd
+set clipboard+=unnamedplus,ideaput   " yank straight to system clipboard
+set history=1000
+set visualbell
+
+" IdeaVim-specific
+set ideajoin                  " J uses IntelliJ's smart join
+set ideamarks                 " Vim marks <-> IDE bookmarks
+set idearefactormode=keep     " stay in normal mode during refactors
+set ideastatusicon=gray
+set notimeout
+set timeoutlen=5000
+
+" Uncomment after installing the "IdeaVim-Which-Key" plugin
+" (Settings > Plugins). Until then this option does not exist and errors.
+" set which-key
+
+" ============ Emulated plugins ============
+Plug 'machakann/vim-highlightedyank'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+Plug 'vim-scripts/ReplaceWithRegister'      " gR{motion} - replace with register
+Plug 'vim-scripts/argtextobj.vim'           " dia / cia on arguments
+Plug 'kana/vim-textobj-entire'              " dae / yae on whole buffer
+Plug 'michaeljsmith/vim-indent-object'      " dii / dai on indent block
+Plug 'tommcdo/vim-exchange'                 " cx{motion} to swap two regions
+Plug 'terryma/vim-multiple-cursors'         " <A-n> to add cursor at next match
+Plug 'preservim/nerdtree'
+Plug 'justinmk/vim-sneak'                   " s{char}{char} to jump
+
+" gr is used for ShowUsages below, so put ReplaceWithRegister on gR
+nmap gR  <Plug>ReplaceWithRegisterOperator
+nmap gRR <Plug>ReplaceWithRegisterLine
+xmap gR  <Plug>ReplaceWithRegisterVisual
+
+" ============ Basic remaps ============
+map Q gq
+nnoremap <Esc> :nohlsearch<CR>
+
+" Center on jumps
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+
+" Keep the yank when pasting over a selection
+xnoremap <leader>p "_dP
+
+" Move lines (uses IntelliJ's line-move so indentation is fixed up)
+nmap <A-j> <Action>(MoveLineDown)
+nmap <A-k> <Action>(MoveLineUp)
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+
+" Stay in visual mode when indenting
+vnoremap < <gv
+vnoremap > >gv
+
+" ============ IDE actions ============
+" Navigation
+nmap gd <Action>(GotoDeclaration)
+nmap gy <Action>(GotoTypeDeclaration)
+nmap gi <Action>(GotoImplementation)
+nmap gr <Action>(ShowUsages)
+nmap gh <Action>(ShowErrorDescription)
+nmap K  <Action>(QuickJavaDoc)
+nmap [d <Action>(GotoPreviousError)
+nmap ]d <Action>(GotoNextError)
+nmap [m <Action>(MethodUp)
+nmap ]m <Action>(MethodDown)
+nmap <C-o> <Action>(Back)
+nmap <C-i> <Action>(Forward)
+
+" Find / search
+nmap <leader>ff <Action>(GotoFile)
+nmap <leader>fs <Action>(GotoSymbol)
+nmap <leader>fc <Action>(GotoClass)
+nmap <leader>fa <Action>(GotoAction)
+nmap <leader>fg <Action>(FindInPath)
+nmap <leader>fr <Action>(RecentFiles)
+nmap <leader>e  <Action>(SelectInProjectView)
+
+" Refactor / code
+nmap <leader>rn <Action>(RenameElement)
+nmap <leader>rm <Action>(ExtractMethod)
+nmap <leader>rv <Action>(IntroduceVariable)
+nmap <leader>ca <Action>(ShowIntentionActions)
+nmap <leader>cf <Action>(ReformatCode)
+nmap <leader>oi <Action>(OptimizeImports)
+
+" Run / debug
+nmap <leader>rr <Action>(Run)
+nmap <leader>rd <Action>(Debug)
+nmap <leader>rc <Action>(RunClass)
+nmap <leader>rt <Action>(RerunTests)
+nmap <leader>b  <Action>(ToggleLineBreakpoint)
+nmap <leader>B  <Action>(ViewBreakpoints)
+
+" Git
+nmap <leader>gs <Action>(Vcs.Show.Local.Changes)
+nmap <leader>gb <Action>(Annotate)
+nmap <leader>gh <Action>(Vcs.ShowTabbedFileHistory)
+nmap <leader>gd <Action>(Compare.LastVersion)
+
+" Windows / tabs
+nmap <leader>ws <Action>(SplitHorizontally)
+nmap <leader>wv <Action>(SplitVertically)
+nmap <leader>wc <Action>(CloseContent)
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nmap <Tab>   <Action>(NextTab)
+nmap <S-Tab> <Action>(PreviousTab)
+
+" Config reload
+nmap <leader>vr <Action>(IdeaVim.ReloadVimRc.reload)
