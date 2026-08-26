@@ -4,6 +4,9 @@
 	excludesfile = ~/.gitignore
 	pager = delta
 
+[init]
+	defaultBranch = main
+
 [interactive]
 	diffFilter = delta --color-only
 
@@ -14,29 +17,99 @@
 	hyperlinks = true
 	line-numbers = true
 
+[rerere]
+	enabled = true
+
 [pull]
 	rebase = true
 
 [push]
 	autoSetupRemote = true
 
-[init]
-	defaultBranch = main
-
 [merge]
-	conflictstyle = diff3
+	conflictstyle = zdiff3
 
 [diff]
 	colorMoved = default
 
-[alias]
-	st  = status
-	co  = checkout
-	br  = branch
-	lg  = log --oneline --graph --decorate --all
-	undo = reset --soft HEAD~1
-	wip  = commit -am "wip"
+[commit]
+	gpgsign = true
 
-# Personal name/email goes in ~/.gitconfig.local (not tracked)
+[tag]
+	gpgsign = true
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[alias]
+	# Information
+	s = status -sb
+	st = status
+	lg = log --oneline --decorate --graph --all
+	recent = log --oneline --decorate -20
+	last = log -1 HEAD --stat
+	current = branch --show-current
+	branches = branch --sort=-committerdate
+
+	# Branches
+	co = switch
+	cb = switch -c
+	sw = switch
+	swm = switch main
+	br = branch
+	rb = branch -r
+	bd = branch -d
+	# Not bD: git config keys are case-insensitive, so bD and bd are one
+	# key and the last wins — which silently made `git bd` force-delete.
+	bdf = branch -D
+
+	# Staging / commits
+	aa = add --all
+	cm = commit
+	amend = commit --amend
+	undo = reset --soft HEAD~1
+	unstage = restore --staged
+	wip = "!git add -A && git commit -m 'WIP'"
+
+	# Diff
+	d = diff
+	ds = diff --staged
+	dt = diff HEAD
+
+	# Rebase
+	r = rebase
+	rm = rebase origin/main
+	ri = rebase -i
+	rc = rebase --continue
+	ra = rebase --abort
+	rs = rebase --skip
+	up = "!git fetch origin && git rebase origin/main"
+
+	# Merge
+	m = merge
+	mc = merge --continue
+	ma = merge --abort
+	ms = merge --squash
+
+	# Remote
+	fp = fetch --all --prune
+	sync = "!git fetch --all --prune && git status"
+	pc = push -u origin HEAD
+
+	# Cleanup
+	clbr = "!f() { git branch --merged main | grep -vE '^\\*|^(main|master|develop|staging|production)$' | xargs -r git branch -d; }; f"
+
+	# GitHub
+	prs = "!gh pr list"
+	prc = "!gh pr create"
+	prv = "!gh pr view"
+	prco = "!gh pr checkout"
+	prdiff = "!gh pr diff"
+	repocreate = "!f() { gh repo create \"$@\" --source=. --private --push; }; f"
+
+# Personal name/email/signingkey go in ~/.gitconfig.local (not tracked)
 [include]
 	path = ~/.gitconfig.local
