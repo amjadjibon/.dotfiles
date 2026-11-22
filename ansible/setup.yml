@@ -16,11 +16,19 @@
         go_bin_dir: /opt/homebrew/bin
       when: ansible_facts['os_family'] == 'Darwin'
 
+    # Arch installs Neovim and Go via pacman into /usr/bin
+    - name: Set Arch paths
+      set_fact:
+        nvim_bin: /usr/bin/nvim
+        go_bin_dir: /usr/bin
+      when: ansible_facts['os_family'] == 'Archlinux'
+
+    # Debian/Ubuntu and Fedora/RHEL install upstream tarballs into /usr/local
     - name: Set Linux paths
       set_fact:
         nvim_bin: /usr/local/bin/nvim
         go_bin_dir: /usr/local/go/bin
-      when: ansible_facts['os_family'] != 'Darwin'
+      when: ansible_facts['os_family'] not in ['Darwin', 'Archlinux']
 
   tasks:
     - name: Core packages
