@@ -43,7 +43,8 @@
   register: omz_stat
 
 - name: Install Oh My Zsh
-  shell: RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  # KEEP_ZSHRC=yes: don't replace the symlinked ~/.zshrc with the OMZ template
+  shell: RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   args:
     creates: "{{ omz_dir }}"
   when: not omz_stat.stat.exists

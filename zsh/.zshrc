@@ -9,9 +9,9 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/amjadhossain/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
-export PATH="$PATH:/Users/amjadhossain/development/flutter/bin"
+[[ -d "$HOME/development/flutter/bin" ]] && export PATH="$PATH:$HOME/development/flutter/bin"
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 export PATH="$PATH":"$HOME/.local/bin"
 
@@ -113,7 +113,7 @@ export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 
-export PATH=/opt/homebrew/bin:$PATH
+[[ -d /opt/homebrew/bin ]] && export PATH=/opt/homebrew/bin:$PATH
 
 # Go
 export GOPATH="$HOME/go"
@@ -151,25 +151,27 @@ export NVM_DIR="$HOME/.nvm"
 # alias zshconfig="nano ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Modern Unix tool inits
-eval "$(zoxide init zsh)"
-eval "$(mcfly init zsh)"
+# Modern Unix tool inits (only when installed, e.g. via --extras)
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+(( $+commands[mcfly] )) && eval "$(mcfly init zsh)"
 
-# Modern replacements
-alias cat='bat --paging=never'
-alias ls='eza --icons'
-alias ll='eza -la --icons --git'
-alias lt='eza --tree --icons --level=2'
-alias du='dust'
-alias df='duf'
-alias ps='procs'
-alias ping='gping'
-alias grep='rg'
-alias find='fd'
-alias sed='sd'
-alias curl='xh'
-alias top='btm'
-alias dig='doggo'
+# Modern replacements (only when installed, so the originals keep working)
+(( $+commands[bat] ))    && alias cat='bat --paging=never'
+if (( $+commands[eza] )); then
+	alias ls='eza --icons'
+	alias ll='eza -la --icons --git'
+	alias lt='eza --tree --icons --level=2'
+fi
+(( $+commands[dust] ))   && alias du='dust'
+(( $+commands[duf] ))    && alias df='duf'
+(( $+commands[procs] ))  && alias ps='procs'
+(( $+commands[gping] ))  && alias ping='gping'
+(( $+commands[rg] ))     && alias grep='rg'
+(( $+commands[fd] ))     && alias find='fd'
+(( $+commands[sd] ))     && alias sed='sd'
+(( $+commands[xh] ))     && alias curl='xh'
+(( $+commands[btm] ))    && alias top='btm'
+(( $+commands[doggo] ))  && alias dig='doggo'
 
 # common commands
 alias q=exit
@@ -219,7 +221,7 @@ alias git-list-untracked='git fetch --prune && git branch -r | awk "{print \$1}"
 alias git-delete-untracked='git fetch --prune && git branch -r | awk "{print \$1}" | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}" | xargs git branch -d'
 
 # uv
-eval "$(uv generate-shell-completion zsh)"
+(( $+commands[uv] )) && eval "$(uv generate-shell-completion zsh)"
 
 # program aliases
 alias activate='source .venv/bin/activate'
@@ -231,18 +233,26 @@ alias loadbash='source ~/.bash_profile'
 alias zshrc='vim ~/.zshrc'
 alias loadzshrc='source ~/.zshrc'
 
-# alias lvim to vim
-alias vim='lvim'
+# vim -> lvim if present, otherwise nvim
+if (( $+commands[lvim] )); then
+	alias vim='lvim'
+elif (( $+commands[nvim] )); then
+	alias vim='nvim'
+fi
 
 # alias to open goland
-alias goland='/usr/local/bin/goland'
+[[ -x /usr/local/bin/goland ]] && alias goland='/usr/local/bin/goland'
 
 
 # ssh
 # alias uat=’ssh <insert whatever here>'
 
 
-source /Users/amjadhossain/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Fallback for an older standalone install; the playbook installs it as an
+# oh-my-zsh plugin (loaded via plugins=(... zsh-syntax-highlighting) above).
+if [[ ! -d "$ZSH/custom/plugins/zsh-syntax-highlighting" && -f "$HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+	source "$HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
 
 export WASMTIME_HOME="$HOME/.wasmtime"
 
