@@ -7,9 +7,19 @@
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
+# community.general.copr imports the dnf4 Python bindings, which dnf5-based
+# Fedora (41+) doesn't install by default.
+- name: Install python3-dnf for the copr module (Fedora/RHEL)
+  dnf:
+    name: python3-dnf
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+# COPR from https://ghostty.org/docs/install/binary (pgdev/ghostty has no fedora-41 chroot)
 - name: Enable Ghostty COPR (Fedora/RHEL)
   community.general.copr:
-    name: pgdev/ghostty
+    name: scottames/ghostty
     state: enabled
   become: true
   when: ansible_facts['os_family'] == 'RedHat'

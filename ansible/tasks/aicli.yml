@@ -8,28 +8,9 @@
     PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
   when: ansible_facts['os_family'] == 'Darwin'
 
-- name: Tap sst/tap (macOS)
-  community.general.homebrew_tap:
-    name: sst/tap
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
-  when: ansible_facts['os_family'] == 'Darwin'
-
-- name: Install opencode via brew (macOS)
-  community.general.homebrew:
-    name: sst/tap/opencode
-    state: present
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
-  when: ansible_facts['os_family'] == 'Darwin'
-
-- name: Install codex via npm (macOS)
-  shell: npm install -g @openai/codex
-  args:
-    creates: /opt/homebrew/bin/codex
-  environment:
-    PATH: "/opt/homebrew/bin:{{ ansible_facts['env']['PATH'] }}"
-  when: ansible_facts['os_family'] == 'Darwin'
+# codex and opencode use their official install scripts on every OS (below).
+# Homebrew refuses formulas from untrusted third-party taps, and the old
+# sst/tap/opencode tap is no longer the one opencode documents.
 
 # ── Linux ─────────────────────────────────────────────────────────────────────
 - name: Check if claude is installed
@@ -58,13 +39,12 @@
   changed_when: false
   args:
     executable: /bin/bash
-  when: ansible_facts['os_family'] != 'Darwin'
 
-- name: Install codex via official installer
+- name: Install codex via official installer (macOS + Linux)
   shell: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh
   args:
     executable: /bin/sh
-  when: ansible_facts['os_family'] != 'Darwin' and codex_check.rc != 0
+  when: codex_check.rc != 0
 
 - name: Check if opencode is installed
   shell: |
@@ -75,10 +55,9 @@
   changed_when: false
   args:
     executable: /bin/bash
-  when: ansible_facts['os_family'] != 'Darwin'
 
-- name: Install opencode via official installer
+- name: Install opencode via official installer (macOS + Linux)
   shell: curl -fsSL https://opencode.ai/install | bash
   args:
     executable: /bin/bash
-  when: ansible_facts['os_family'] != 'Darwin' and opencode_check.rc != 0
+  when: opencode_check.rc != 0
